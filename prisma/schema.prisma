@@ -1,0 +1,142 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  admin
+  client
+}
+
+enum SelectionStatus {
+  pending
+  submitted
+  processed
+  cancelled
+}
+
+enum PaymentStatus {
+  pending
+  paid
+  cancelled
+  refunded
+}
+
+model Users {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String
+  email     String   @unique
+  cpf       String?  @unique @db.VarChar(11)
+  phone     String?  @unique @db.VarChar(20)
+  password  String   @db.VarChar(64)
+  role      UserRole @default(client)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  events     Events[]
+  selections Selections[]
+  orders     Orders[]
+  logs       Logs[]
+  sessions   Sessions[]
+}
+
+model Events {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  date        DateTime?
+  location    String?
+  userId      String    @db.Uuid
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now())
+
+  user   Users    @relation(fields: [userId], references: [id])
+  photos Photos[]
+}
+
+model Photos {
+  id                Int      @id @default(autoincrement())
+  name              String?
+  description       String?
+  price             Decimal  @db.Decimal(10, 2)
+  filePathOriginal  String?  @db.VarChar(500)
+  filePathWatermark String?  @db.VarChar(500)
+  eventId           Int
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @default(now())
+
+  event          Events           @relation(fields: [eventId], references: [id])
+  selectionItems SelectionItems[]
+}
+
+model Selections {
+  id        Int             @id @default(autoincrement())
+  userId    String          @db.Uuid
+  status    SelectionStatus @default(pending)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @default(now())
+
+  user           Users            @relation(fields: [userId], references: [id])
+  selectionItems SelectionItems[]
+  orders         Orders[]
+}
+
+model SelectionItems {
+  id          Int      @id @default(autoincrement())
+  selectionId Int
+  photoId     Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+
+  selection Selections @relation(fields: [selectionId], references: [id])
+  photo     Photos     @relation(fields: [photoId], references: [id])
+}
+
+model Orders {
+  id            Int           @id @default(autoincrement())
+  userId        String        @db.Uuid
+  selectionId   Int
+  totalAmount   Decimal       @db.Decimal(10, 2)
+  paymentStatus PaymentStatus @default(pending)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @default(now())
+
+  user      Users      @relation(fields: [userId], references: [id])
+  selection Selections @relation(fields: [selectionId], references: [id])
+}
+
+model Logs {
+  id        Int      @id @default(autoincrement())
+  logLevel  String
+  message   String
+  userId    String   @db.Uuid
+  ipAddress String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  user Users @relation(fields: [userId], references: [id])
+}
+
+model Sessions {
+  id        String   @id @default(cuid()) // jti (id do refresh token)
+  userId    String   @db.Uuid
+  user      Users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userAgent String?
+  ipAdress  String?
+  isRevoked Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}

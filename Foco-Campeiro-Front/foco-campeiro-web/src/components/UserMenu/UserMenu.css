@@ -1,0 +1,114 @@
+/* Container principal - Permite que o dropdown se posicione em relação a ele */
+.user-menu-container {
+  position: relative;
+  display: inline-block;
+}
+
+/* O botão onde clica para abrir */
+.user-menu-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.user-menu-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1); /* Efeito hover suave */
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Textos do usuário (Admin / Email) */
+.user-info {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  color: #e5e5e5;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.user-email {
+  color: #888;
+  font-size: 0.75rem;
+  margin: 0;
+}
+
+/* Círculo do Avatar */
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  background-color: #2a2a2a;
+  border: 1px solid #333;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fbbf24; /* Amarelo da marca */
+}
+
+/* Setinha girando */
+.arrow-icon {
+  color: #666;
+  transition: transform 0.2s;
+}
+
+.arrow-icon.open {
+  transform: rotate(180deg);
+}
+
+/* --- O DROPDOWN (Menu flutuante) --- */
+.user-dropdown {
+  position: absolute;
+  top: 110%; /* Fica logo abaixo do botão */
+  right: 0;
+  width: 200px;
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  padding: 8px;
+  z-index: 1000; /* Garante que fique por cima de tudo */
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Botão de Sair */
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px;
+  background: none;
+  border: none;
+  color: #ff6b6b; /* Vermelho suave */
+  font-size: 0.9rem;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.logout-btn:hover {
+  background-color: rgba(255, 107, 107, 0.1);
+}
+
+/* Animação suave ao abrir */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsividade: Esconde o texto em telas muito pequenas */
+@media (max-width: 768px) {
+  .user-info {
+    display: none;
+  }
+}

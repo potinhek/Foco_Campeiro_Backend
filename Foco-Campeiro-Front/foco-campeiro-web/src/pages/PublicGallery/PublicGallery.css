@@ -1,0 +1,163 @@
+/* src/pages/PublicGallery/PublicGallery.css */
+
+.gallery-container {
+  min-height: 100vh;
+  /* ADICIONE ESTA LINHA: Garante que a página ocupe 100% da largura da tela */
+  width: 100%; 
+  background-color: #050505;
+  color: #FFF;
+  font-family: 'Inter', sans-serif;
+  /* Remove margens padrões que podem atrapalhar */
+  margin: 0;
+  padding: 0;
+}
+
+/* Header Simples */
+.gallery-header {
+  /* Garante que o header também ocupe tudo */
+  width: 100%; 
+  height: 70px;
+  border-bottom: 1px solid #222;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #000;
+}
+
+/* Banner Principal */
+.gallery-hero {
+  /* Garante que o banner ocupe tudo */
+  width: 100%;
+  text-align: center;
+  padding: 80px 20px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.7), #050505),
+              url('https://images.unsplash.com/photo-1598556776374-2c0eb4fb2c52?auto=format&fit=crop&q=80');
+  background-size: cover;
+  background-position: center;
+  /* Garante que a imagem de fundo cubra tudo sem repetir */
+  background-repeat: no-repeat;
+
+}
+.brand-text {
+  font-family: Arial;
+  color: #DAA520;
+  font-size: 25px;
+  letter-spacing: 1px;
+}
+.gallery-hero h1 {
+  font-size: 38px;
+  font-weight: 800;
+  margin-bottom: 10px;
+  color: #FFF;
+}
+
+.gallery-hero p {
+  color: #CCC;
+  font-size: 18px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Grid de Eventos */
+.events-section {
+  padding: 40px 5%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-title {
+  border-left: 4px solid #DAA520;
+  padding-left: 15px;
+  font-size: 24px;
+  margin-bottom: 30px;
+  color: #FFF;
+}
+
+.public-events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 30px;
+}
+
+/* Card do Evento Público */
+.public-card {
+  background-color: #121212;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #222;
+  transition: transform 0.2s, border-color 0.2s;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+.public-card:hover {
+  transform: translateY(-8px);
+  border-color: #DAA520;
+}
+
+.card-img-area {
+  height: 200px;
+  overflow: hidden;
+}
+
+.card-img-area img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s;
+}
+
+.public-card:hover .card-img-area img {
+  transform: scale(1.1);
+}
+
+.card-content {
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.event-date {
+  color: #DAA520;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.event-name {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  color: #FFF;
+}
+
+.event-location {
+  color: #888;
+  font-size: 14px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.btn-access {
+  margin-top: auto;
+  background-color: transparent;
+  border: 1px solid #444;
+  color: #FFF;
+  padding: 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.public-card:hover .btn-access {
+  background-color: #DAA520;
+  color: #000;
+  border-color: #DAA520;
+}

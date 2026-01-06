@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foco Campeiro | Meus Eventos</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Rye&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        /* --- RESET E VARIÁVEIS --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-color: #000000;
+            --surface-color: #121212; /* Cinza bem escuro para diferenciar do fundo */
+            --primary-gold: #DAA520;  /* Dourado da marca */
+            --text-white: #FFFFFF;
+            --text-gray: #A0A0A0;
+            --border-color: #333333;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-white);
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- CABEÇALHO (HEADER) --- */
+        header {
+            height: 80px;
+            background-color: var(--bg-color);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px; /* Espaçamento lateral */
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary-gold);
+        }
+
+        .logo-icon {
+            font-size: 32px;
+        }
+
+        .logo-text {
+            font-family: 'Rye', serif; /* Fonte estilo "Western" */
+            font-size: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .user-area {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background-color: var(--surface-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-color);
+            transition: border-color 0.2s;
+        }
+
+        .user-area:hover .user-avatar {
+            border-color: var(--primary-gold);
+        }
+
+        /* --- CONTEÚDO PRINCIPAL --- */
+        main {
+            flex: 1;
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Barra de Comando (Título + Botão) */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 60px; /* Espaço até o conteúdo */
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-gold);
+            color: #000; /* Texto preto para contraste no dourado */
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s, filter 0.2s;
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.1); /* Brilha um pouco ao passar o mouse */
+            transform: translateY(-2px);
+        }
+
+        /* --- ESTADO VAZIO (EMPTY STATE) --- */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 0;
+            text-align: center;
+            border: 2px dashed var(--border-color); /* Borda tracejada sutil */
+            border-radius: 16px;
+            background-color: rgba(255,255,255, 0.02); /* Fundo muuuito sutil */
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            color: var(--border-color); /* Cinza escuro */
+            margin-bottom: 24px;
+        }
+
+        .empty-title {
+            font-size: 20px;
+            color: var(--text-white);
+            margin-bottom: 8px;
+        }
+
+        .empty-desc {
+            color: var(--text-gray);
+            font-size: 16px;
+            max-width: 400px;
+            line-height: 1.5;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-area">
+            <i class="ph ph-camera logo-icon"></i> 
+            <span class="logo-text">Foco Campeiro</span>
+        </div>
+
+        <div class="user-area" title="Meu Perfil">
+            <span style="color: var(--text-gray); font-size: 14px;">Olá, Gabriel</span>
+            <div class="user-avatar">
+                <i class="ph ph-user" style="color: white;"></i>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        
+        <div class="page-header">
+            <h1>Meus Eventos</h1>
+            
+            <button class="btn-primary">
+                <i class="ph ph-plus-circle" style="font-size: 20px;"></i>
+                Novo Evento
+            </button>
+        </div>
+
+        <div class="empty-state">
+            <i class="ph ph-camera-slash empty-icon"></i>
+            
+            <h2 class="empty-title">Você ainda não tem eventos</h2>
+            <p class="empty-desc">
+                Seus eventos criados aparecerão aqui. Clique no botão "Novo Evento" acima para começar a vender suas fotos.
+            </p>
+        </div>
+
+    </main>
+
+</body>
+</html>

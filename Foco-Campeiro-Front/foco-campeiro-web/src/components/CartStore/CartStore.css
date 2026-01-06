@@ -1,0 +1,186 @@
+/* src/components/CartStore/CartStore.css */
+
+/* Fundo escuro */
+.cart-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s;
+  backdrop-filter: blur(2px); /* Efeito de desfoque chique */
+}
+
+.cart-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* A Gaveta Lateral */
+.cart-store {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  
+  /* RESPONSIVIDADE: */
+  width: 85%; /* No celular ocupa quase tudo (mas deixa ver o fundo) */
+  max-width: 380px; /* No PC trava em 380px para não ficar gigante */
+  
+  background-color: #111;
+  border-left: 1px solid #333;
+  box-shadow: -5px 0 20px rgba(0,0,0,0.9);
+  z-index: 1000;
+  
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  display: flex;
+  flex-direction: column;
+}
+
+.cart-store.open {
+  transform: translateX(0);
+}
+
+/* Cabeçalho do Carrinho */
+.cart-header {
+  padding: 20px;
+  border-bottom: 1px solid #222;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #0a0a0a;
+  min-height: 70px; /* Garante altura para o dedo clicar */
+}
+
+.cart-title {
+  font-family: 'Rye', serif;
+  color: #DAA520;
+  font-size: 18px;
+  margin: 0;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  padding: 8px; /* Área de clique maior */
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+.close-btn:hover { background-color: rgba(255,255,255,0.1); color: #FFF; }
+
+/* Lista de Itens (Com rolagem) */
+.cart-items {
+  flex: 1;
+  overflow-y: auto;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* O CARD DO ITEM (Aqui estava o problema da imagem gigante) */
+.cart-item {
+  display: flex;
+  align-items: center; /* Alinha tudo no centro verticalmente */
+  gap: 12px;
+  background-color: #1a1a1a;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  transition: border-color 0.2s;
+}
+
+.cart-item:hover { border-color: #444; }
+
+/* MINIATURA DA FOTO - Travada em 70px */
+.cart-item-img {
+  width: 70px !important;  /* O !important garante que nada sobrescreva */
+  height: 70px !important;
+  min-width: 70px; /* Garante que não esmague no celular */
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #333;
+}
+
+/* Informações do Item */
+.cart-item-info {
+  flex: 1; /* Ocupa o espaço que sobrar */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  overflow: hidden; /* Evita texto estourando */
+}
+
+.item-name {
+  font-size: 14px;
+  color: #FFF;
+  font-weight: 600;
+  white-space: nowrap;       /* Corta texto muito longo */
+  overflow: hidden;
+  text-overflow: ellipsis;   /* Adiciona (...) */
+}
+
+.item-price {
+  color: #DAA520;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Botão de Lixeira */
+.remove-btn {
+  background: rgba(255, 68, 68, 0.1);
+  border: none;
+  color: #ff4444;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.remove-btn:active { background-color: rgba(255, 68, 68, 0.3); }
+
+/* Rodapé */
+.cart-footer {
+  padding: 20px;
+  border-top: 1px solid #222;
+  background-color: #0a0a0a;
+  /* Garante que fique fixo embaixo mesmo no celular */
+  padding-bottom: max(20px, env(safe-area-inset-bottom)); 
+}
+
+.cart-total {
+  display: flex;
+  justify-content: space-between;
+  color: #FFF;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.btn-finalize {
+  width: 100%;
+  background-color: #25D366;
+  color: #FFF;
+  border: none;
+  padding: 14px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+}
+
+.btn-finalize:active { transform: scale(0.98); }

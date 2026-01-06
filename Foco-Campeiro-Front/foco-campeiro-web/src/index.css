@@ -1,0 +1,46 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  /* Força o tema escuro como padrão para combinar com o site */
+  color-scheme: dark; 
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #000000; /* Fundo preto total */
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Removemos a centralização forçada aqui */
+body {
+  margin: 0;
+  padding: 0;
+  min-width: 100vw;
+  min-height: 100vh;
+  display: block; /* Importante: volta ao comportamento normal de bloco */
+  overflow-x: hidden; /* Evita barra de rolagem horizontal */
+}
+
+/* Garante que o React ocupe toda a largura */
+#root {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Mantemos o estilo básico de links e botões se quiser */
+a {
+  font-weight: 500;
+  color: #DAA520; /* Ajustei para o Dourado do seu tema */
+  text-decoration: inherit;
+}
+a:hover {
+  color: #FFF;
+}
+
+button {
+  cursor: pointer;
+}

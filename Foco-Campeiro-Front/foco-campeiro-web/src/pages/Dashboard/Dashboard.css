@@ -1,0 +1,202 @@
+/* src/pages/Dashboard/Dashboard.css */
+
+/* --- FONTES E GERAL --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Rye&display=swap');
+
+.dashboard-container {
+  min-height: 100vh;
+  width: 100vw;
+  background-color: #000000; /* Fundo preto total */
+  color: #FFFFFF;
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- CABEÇALHO (Header) --- */
+.header {
+  height: 80px;
+  background-color: #0a0a0a; /* Um preto sutilmente mais claro */
+  border-bottom: 1px solid #222;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+}
+
+.logo-area-dash {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-dash-img {
+  height: 65px;
+  width: auto;
+}
+
+.logo-text {
+  font-family: Arial;
+  font-size: 14px;
+  color: #DAA520; /* Dourado */
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.user-area {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  color: #A0A0A0;
+  font-weight: 600;
+}
+
+.user-avatar {
+  width: 38px;
+  height: 38px;
+  border: 2px solid #222;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #121212;
+  transition: border-color 0.2s;
+}
+
+.user-area:hover .user-avatar {
+  border-color: #DAA520;
+}
+
+/* --- CONTEÚDO PRINCIPAL --- */
+.main-content {
+  flex: 1;
+  padding: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* Botão Dourado Principal */
+.btn-primary {
+  background-color: #DAA520;
+  color: #000;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: filter 0.2s, transform 0.2s;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+}
+
+/* --- GRID DE CARDS (O que deixa um ao lado do outro) --- */
+.events-grid {
+  display: grid;
+  /* Cria colunas que têm no mínimo 300px e se dividem no espaço */
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px; /* Espaço entre os cards */
+}
+
+/* --- O CARD ELEGANTE --- */
+.event-card {
+  background-color: #121212; /* Cinza chumbo */
+  border: 1px solid #333;
+  border-left: 4px solid #DAA520; /* O detalhe dourado na esquerda! */
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Efeito ao passar o mouse no card */
+.event-card:hover {
+  transform: translateY(-5px); /* Flutua */
+  border-color: #555;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.card-date {
+  color: #DAA520;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+  color: #FFF;
+}
+
+.card-location {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #A0A0A0;
+  font-size: 14px;
+}
+
+/* Botões do Card */
+.card-actions {
+  margin-top: auto; /* Empurra os botões para o final do card */
+  display: flex;
+  gap: 10px;
+  padding-top: 16px;
+}
+
+.btn-card {
+  flex: 1; /* Faz os botões ocuparem o mesmo espaço */
+  padding: 10px;
+  background-color: transparent;
+  border: 1px solid #444;
+  color: #FFF;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-card:hover {
+  background-color: #DAA520;
+  color: #000;
+  border-color: #DAA520;
+}
+
+/* --- EMPTY STATE (Quando não tem eventos) --- */
+.empty-state {
+  text-align: center;
+  padding: 80px 0;
+  border: 2px dashed #333;
+  border-radius: 16px;
+  background-color: rgba(255, 255, 255, 0.02);
+  margin-top: 40px;
+}
+
+.empty-title { font-size: 20px; margin-bottom: 8px; }
+.empty-desc { color: #A0A0A0; }

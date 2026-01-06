@@ -1,0 +1,249 @@
+/* src/components/CreateEventModal/CreateEventModal.css */
+
+/* Fundo escuro transparente atrás do modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.8); /* Mais escuro para focar */
+    backdrop-filter: blur(4px); /* Desfoque chique no fundo */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+/* O Cartão do Modal */
+.modal-container {
+    background-color: #0F0F0F; /* Quase preto */
+    width: 90%;
+    max-width: 500px;
+    padding: 30px;
+    border-radius: 12px;
+    border: 1px solid #333;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    position: relative;
+    max-height: 90vh; /* Se a tela for pequena, não corta */
+    overflow-y: auto; /* Permite rolar se precisar */
+}
+
+/* Cabeçalho */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    border-bottom: 1px solid #222;
+    padding-bottom: 15px;
+}
+
+.modal-header h2 {
+    color: #FFF;
+    font-family: 'Inter', sans-serif;
+    font-size: 22px;
+    margin: 0;
+    font-weight: 700;
+}
+
+.close-btn-modal {
+    background: transparent;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.close-btn-modal:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #FFF;
+}
+
+/* Formulário e Inputs */
+.modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-size: 14px;
+    color: #BBB;
+    font-weight: 500;
+}
+
+/* ESTILO GLOBAL DOS INPUTS */
+input[type="text"],
+input[type="date"],
+input[type="number"] {
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 12px 15px;
+    color: #FFF;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%; /* Garante que preencha o espaço */
+    box-sizing: border-box; /* Garante que o padding não estoure a largura */
+}
+
+input:focus {
+    border-color: #DAA520; /* Dourado no foco */
+    box-shadow: 0 0 0 3px rgba(218, 165, 32, 0.1);
+}
+
+/* Linha com dois campos (Data e Local) */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr; /* Data menor, Local maior */
+    gap: 15px;
+}
+
+/* --- ÁREA DE PREÇOS --- */
+.price-section {
+    margin-top: 10px;
+    padding-top: 20px;
+    border-top: 1px solid #222;
+}
+
+.section-title {
+    color: #DAA520;
+    font-size: 16px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Linha de Inputs do Pacote (Qtd + Valor + Botão) */
+.input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto; /* Colunas proporcionais + botão fixo */
+    gap: 10px;
+    align-items: end; /* Alinha o botão com a base dos inputs */
+}
+
+/* Ajuste específico para os inputs dentro da linha de pacote */
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* Botão de Adicionar Pacote (+) */
+.btn-add-pkg {
+    background-color: transparent;
+    color: #DAA520;
+    border: 1px solid #DAA520;
+    height: 42px; /* Mesma altura visual dos inputs */
+    width: 42px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    margin-bottom: 1px; /* Ajuste fino de alinhamento ótico */
+}
+.btn-add-pkg:hover {
+    background-color: #DAA520;
+    color: #000;
+    transform: scale(1.05);
+}
+
+/* Lista de Pacotes Adicionados */
+.packages-list {
+    margin-top: 15px;
+    background-color: #0a0a0a;
+    border: 1px solid #222;
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.package-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #1a1a1a;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #DDD;
+    border-left: 3px solid #DAA520; /* Detalhe dourado */
+}
+
+.package-info strong {
+    color: #FFF;
+    font-weight: 700;
+}
+
+.btn-remove-pkg {
+    background: transparent;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 4px;
+    transition: color 0.2s;
+    display: flex;
+}
+.btn-remove-pkg:hover {
+    color: #ff4444;
+    background-color: rgba(255, 68, 68, 0.1);
+}
+
+/* Rodapé do Modal */
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #222;
+}
+
+.btn-cancel {
+    background: transparent;
+    border: 1px solid #333;
+    color: #AAA;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-cancel:hover { border-color: #666; color: #FFF; }
+
+.btn-save {
+    background-color: #DAA520;
+    border: none;
+    color: #000;
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-save:hover {
+    background-color: #FDD700;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(218, 165, 32, 0.3);
+}

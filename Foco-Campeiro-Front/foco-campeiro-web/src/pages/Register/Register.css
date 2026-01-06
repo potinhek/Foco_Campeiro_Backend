@@ -1,0 +1,160 @@
+/* src/pages/Register/Register.css */
+
+/* Reutiliza o container do Login para manter consistência */
+.register-container {
+  height: 100vh;
+  width: 100vw;
+  background-color: #000000;
+  /* Fundo sutil para textura (opcional) */
+  background-image: linear-gradient(rgba(0,0,0,0.9), rgba(0,0,0,0.9)), url('https://images.unsplash.com/photo-1534078235003-752763363303?q=80&w=2070&auto=format&fit=crop');
+  background-size: cover;
+  background-position: center;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.register-card {
+  width: 100%;
+  max-width: 600px; /* Mais largo que o login para caber as colunas */
+  padding: 40px;
+  background-color: #000000; /* Fundo preto sólido */
+  border: 1px solid #333;
+  border-radius: 16px;
+  text-align: center;
+}
+
+/* Logo e Título */
+.register-header {
+  margin-bottom: 30px;
+}
+
+.register-logo {
+  height: 180px;
+  width: auto;
+  margin-bottom: 20px;
+}
+
+.register-title {
+  color: #FFF;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* Formulário */
+.form-row {
+  display: flex;
+  gap: 20px; /* Espaço entre as colunas */
+  margin-bottom: 20px;
+}
+
+/* No celular, vira uma coluna só */
+@media (max-width: 600px) {
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 0;
+  }
+  .form-group-col {
+    margin-bottom: 20px;
+  }
+}
+
+.form-group-full {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.form-group-col {
+  flex: 1; /* Ocupa metade do espaço */
+  text-align: left;
+}
+
+.label-text {
+  display: block;
+  color: #FFF;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  margin-left: 2px;
+}
+
+.input-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.field-icon {
+  position: absolute;
+  left: 15px;
+  color: #FFF; /* Ícone Branco */
+  font-size: 20px;
+}
+
+.input-ghost {
+  width: 100%;
+  padding: 12px 12px 12px 45px; /* Espaço para o ícone */
+  background: transparent; /* Fundo transparente */
+  border: 1px solid #FFFFFF; /* Borda Branca */
+  border-radius: 8px;
+  color: #FFF;
+  font-size: 15px;
+  outline: none;
+  transition: all 0.3s;
+}
+
+/* Efeito ao clicar */
+.input-ghost:focus {
+  border-color: #DAA520; /* Dourado */
+  box-shadow: 0 0 5px rgba(218, 165, 32, 0.5);
+}
+
+.input-ghost:focus + .field-icon,
+.input-box:focus-within .field-icon {
+  color: #DAA520; /* Ícone vira dourado */
+}
+
+/* Botão */
+.btn-register {
+  width: 200px;
+  padding: 14px;
+  background-color: #DAA520;
+  color: #000;
+  font-weight: 800;
+  font-size: 16px;
+  border: none;
+  border-radius: 30px; /* Redondo estilo pílula */
+  cursor: pointer;
+  margin-top: 10px;
+  transition: transform 0.2s;
+}
+
+.btn-register:hover {
+  transform: scale(1.05);
+  background-color: #FFC107;
+}
+
+.register-footer {
+  margin-top: 25px;
+  font-size: 14px;
+  color: #A0A0A0;
+}
+
+.link-gold {
+  color: #DAA520;
+  font-weight: bold;
+  text-decoration: none;
+  margin-left: 5px;
+}
+
+.link-gold:hover {
+  text-decoration: underline;
+}
+
+.error-message {
+  color: #ff4d4d;
+  font-size: 14px;
+  margin-bottom: 20px;
+}

@@ -1,0 +1,156 @@
+/* src/pages/Login/Login.css */
+
+/* O Container ocupa a tela toda */
+.login-container {
+  height: 100vh;
+  width: 100vw;
+  background-color: #000000;
+  /* Dica: Se tiver uma foto de fundo, coloque aqui com url() e overlay */
+  background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1534078235003-752763363303?q=80&w=2070&auto=format&fit=crop'); 
+  background-size: cover;
+  background-position: center;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* O Card centralizado */
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 40px;
+  /* Efeito de vidro (opcional) ou fundo sólido */
+  background-color: rgba(18, 18, 18, 0.95); 
+  border: 1px solid #333;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Logo e Títulos */
+.logo-area {
+  margin-bottom: 30px;
+  color: #DAA520; /* Dourado */
+}
+.logo-img {
+  width: 180px;
+  height: auto;
+}
+.logo-icon {
+  font-size: 48px;
+}
+
+.brand-name {
+  font-family: 'Times New Roman', serif; /* Ou importar a fonte Rye */
+  font-size: 24px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  display: block;
+  margin-top: 5px;
+}
+
+.login-title {
+  color: #FFF;
+  margin-bottom: 30px;
+  font-size: 18px;
+  font-weight: normal;
+}
+
+/* Formulário e Inputs */
+.form-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 15px;
+  color: #A0A0A0;
+  font-size: 20px;
+  transition: color 0.3s;
+}
+
+.custom-input {
+  width: 100%;
+  padding: 14px 14px 14px 45px; /* Espaço para o ícone */
+  background: transparent;
+  border: 1px solid #555; /* Borda sutil */
+  border-radius: 8px;
+  color: #FFF;
+  font-size: 16px;
+  outline: none;
+  transition: all 0.3s;
+}
+
+/* O Efeito "Foco Campeiro" */
+.custom-input:focus {
+  border-color: #DAA520; /* Borda Dourada */
+  box-shadow: 0 0 8px rgba(218, 165, 32, 0.3); /* Brilho Dourado */
+}
+
+.custom-input:focus + .input-icon, 
+.input-wrapper:focus-within .input-icon {
+  color: #DAA520; /* Ícone Dourado também */
+}
+
+/* Botão */
+.btn-login {
+  width: 100%;
+  padding: 14px;
+  background-color: #DAA520;
+  color: #000;
+  font-weight: bold;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: filter 0.2s;
+  margin-top: 10px;
+}
+
+.btn-login:hover {
+  filter: brightness(1.1);
+}
+
+.btn-login:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Links do Rodapé */
+.login-footer {
+  margin-top: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.link-subtle {
+  color: #A0A0A0;
+  text-decoration: none;
+}
+
+.link-highlight {
+  color: #DAA520;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.link-highlight:hover {
+  text-decoration: underline;
+}
+
+.error-msg {
+  color: #ff4d4d;
+  font-size: 14px;
+  margin-bottom: 15px;
+}

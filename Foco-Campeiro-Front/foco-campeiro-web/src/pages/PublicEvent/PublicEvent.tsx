@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
   ShoppingCart,
@@ -20,7 +20,8 @@ import { Logo } from '../../components/Logo/Logo';
 import './PublicEvent.css';
 
 export function PublicEvent() {
-  const { id } = useParams();
+  // Pega o parâmetro da URL (pode ser "canoinhas" ou "15")
+  const { slug } = useParams();
 
   // --- DADOS DO EVENTO ---
   const [event, setEvent] = useState<any>(null);
@@ -37,10 +38,10 @@ export function PublicEvent() {
 
   // --- DADOS DO CLIENTE (Com memória) ---
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
-  
+
   const [customer, setCustomer] = useState(() => {
-      const saved = localStorage.getItem('@FocoCampeiro:customer');
-      return saved ? JSON.parse(saved) : { name: '', phone: '', email: '' };
+    const saved = localStorage.getItem('@FocoCampeiro:customer');
+    return saved ? JSON.parse(saved) : { name: '', phone: '', email: '' };
   });
 
   // Salva automaticamente o carrinho
@@ -50,7 +51,7 @@ export function PublicEvent() {
 
   // Salva automaticamente os dados do cliente
   useEffect(() => {
-      localStorage.setItem('@FocoCampeiro:customer', JSON.stringify(customer));
+    localStorage.setItem('@FocoCampeiro:customer', JSON.stringify(customer));
   }, [customer]);
 
   // --- TOAST ---
@@ -60,26 +61,17 @@ export function PublicEvent() {
     setTimeout(() => setToastMessage(null), 3000);
   }
 
-  // --- PROTEÇÃO DE CONTEÚDO (Lógica estilo Banlek) ---
+  // --- PROTEÇÃO DE CONTEÚDO ---
   const [isProtected, setIsProtected] = useState(false);
 
   useEffect(() => {
-    // 1. Perdeu o foco (Alt+Tab, Clicou fora, Ferramenta de Recorte) -> BORRA
-    const handleBlur = () => {
-      setIsProtected(true);
-    };
-
-    // 2. Ganhou o foco (Clicou na página de volta) -> LIMPA
-    const handleFocus = () => {
-      setIsProtected(false);
-    };
-
-    // 3. Tecla PrintScreen direta (Backup)
+    const handleBlur = () => setIsProtected(true);
+    const handleFocus = () => setIsProtected(false);
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'PrintScreen') {
         setIsProtected(true);
         if (navigator.clipboard) {
-           try { navigator.clipboard.writeText('Conteúdo protegido.'); } catch {}
+          try { navigator.clipboard.writeText('Conteúdo protegido.'); } catch { }
         }
       }
     };
@@ -95,26 +87,64 @@ export function PublicEvent() {
     };
   }, []);
 
-  // Função para desbloqueio manual ao clicar na cortina
   const handleUnlock = () => {
     setIsProtected(false);
-    window.focus(); // Garante que o navegador entenda que o foco voltou
+    window.focus();
   };
 
-  // --- CARREGAMENTO ---
+  // --- CARREGAMENTO INTELIGENTE (SLUG ou ID) ---
   useEffect(() => {
     async function loadData() {
-      if (!id) return;
+      if (!slug) return;
+
       try {
-        const { data: eventData } = await supabase.from('events').select('*').eq('id', id).single();
+        setLoading(true);
+
+        // 1. Tenta buscar pelo SLUG (texto)
+        // Removi o 'error: eventError' daqui para sumir com o aviso amarelo, pois já checamos !eventData
+        let { data: eventData } = await supabase
+          .from('events')
+          .select('*')
+          .eq('slug', slug)
+          .single();
+
+        // 2. FALLBACK: Se não achou e o slug parece um número (ex: "3"), tenta buscar pelo ID
+        if (!eventData && !isNaN(Number(slug))) {
+             const { data: eventById } = await supabase
+                .from('events')
+                .select('*')
+                .eq('id', slug)
+                .single();
+             eventData = eventById;
+        }
+
+        if (!eventData) {
+          console.error("Evento não encontrado ou link inválido");
+          setLoading(false);
+          return;
+        }
+
         setEvent(eventData);
-        const { data: photosData } = await supabase.from('photos').select('*').eq('event_id', id);
+
+        // 3. Busca as FOTOS usando o ID do evento encontrado
+        const { data: photosData, error: photosError } = await supabase
+          .from('photos')
+          .select('*')
+          .eq('event_id', eventData.id);
+
+        if (photosError) throw photosError;
+
         setPhotos(photosData || []);
-      } catch (error) { console.error('Erro:', error); } 
-      finally { setLoading(false); }
+
+      } catch (error) {
+        console.error('Erro geral:', error);
+      } finally {
+        setLoading(false);
+      }
     }
+
     loadData();
-  }, [id]);
+  }, [slug]);
 
   // --- CÁLCULOS ---
   function calculateTotal() {
@@ -157,20 +187,18 @@ export function PublicEvent() {
     setCart(cart.filter((item) => item.id !== photoId));
   }
 
-  // --- PASSO 1: ABRIR O FORMULÁRIO ---
   function openCheckoutForm() {
     if (cart.length === 0) return;
-    setIsCartOpen(false); // Fecha sidebar
-    setIsCheckoutModalOpen(true); // Abre modal
+    setIsCartOpen(false);
+    setIsCheckoutModalOpen(true);
   }
 
-  // --- PASSO 2: ENVIAR WHATSAPP ---
   function handleSendToWhatsapp(e: React.FormEvent) {
     e.preventDefault();
 
     if (!customer.name || !customer.phone) {
-        alert("Por favor, preencha seu nome e telefone.");
-        return;
+      alert("Por favor, preencha seu nome e telefone.");
+      return;
     }
 
     const { total, breakdown } = calculateTotal();
@@ -180,15 +208,14 @@ export function PublicEvent() {
     const pixName = 'Gabriel Golom Novaki';
     const myPhoneNumber = '554288850626';
 
-    // Monta a mensagem com os dados do cliente
     let message = `*🤠 NOVO PEDIDO - FOCO CAMPEIRO*\n`;
     message += `-----------------------------------\n`;
     message += `*Cliente:* ${customer.name}\n`;
     message += `*Telefone:* ${customer.phone}\n`;
-    if(customer.email) message += `*Email:* ${customer.email}\n`;
+    if (customer.email) message += `*Email:* ${customer.email}\n`;
     message += `-----------------------------------\n`;
     message += `*Evento:* ${event.name}\n\n`;
-    
+
     message += `*📸 PEDIDO (${cart.length} fotos):*\n`;
     cart.forEach((item) => {
       const fileName = item.original_name ? item.original_name : `ID #${item.id}`;
@@ -198,7 +225,7 @@ export function PublicEvent() {
     message += `\n-----------------------------------\n`;
     message += `*📝 RESUMO:*\n`;
     breakdown.forEach((line) => { message += `• ${line}\n`; });
-    
+
     message += `\n*💰 TOTAL: ${totalFormatted}*\n`;
     message += `-----------------------------------\n`;
     message += `*Chave PIX:* ${pixKey}\n`;
@@ -206,7 +233,7 @@ export function PublicEvent() {
     message += `Aguardo o comprovante! 🚀`;
 
     const url = `https://wa.me/${myPhoneNumber}?text=${encodeURIComponent(message)}`;
-    
+
     setIsCheckoutModalOpen(false);
     window.open(url, '_blank');
   }
@@ -219,7 +246,7 @@ export function PublicEvent() {
 
   return (
     <div className="public-event-container no-select" onContextMenu={(e) => e.preventDefault()}>
-      
+
       {/* TOAST */}
       {toastMessage && (
         <div className="toast-notification">
@@ -228,8 +255,7 @@ export function PublicEvent() {
         </div>
       )}
 
-      {/* --- PROTEÇÃO (CURTAIN) --- 
-          Aparece por cima de tudo quando perde o foco */}
+      {/* PROTEÇÃO (CURTAIN) */}
       {isProtected && (
         <div className="security-curtain" onClick={handleUnlock}>
           <div className="security-msg">
@@ -240,72 +266,71 @@ export function PublicEvent() {
         </div>
       )}
 
-      {/* --- MODAL DE CHECKOUT (FORMULÁRIO) --- */}
+      {/* MODAL DE CHECKOUT */}
       {isCheckoutModalOpen && (
         <div className="modal-overlay">
-            <div className="checkout-modal">
-                <div className="checkout-header">
-                    <h2>Seus Dados</h2>
-                    <button onClick={() => setIsCheckoutModalOpen(false)} className="close-modal-btn">
-                        <X size={24} />
-                    </button>
-                </div>
-                
-                <p className="checkout-info">Informe seus dados para identificarmos seu pedido no WhatsApp.</p>
-
-                <form onSubmit={handleSendToWhatsapp} className="checkout-form">
-                    <div className="form-group">
-                        <label><User size={18}/> Nome Completo *</label>
-                        <input 
-                            type="text" 
-                            placeholder="Ex: João da Silva" 
-                            required
-                            value={customer.name}
-                            onChange={e => setCustomer({...customer, name: e.target.value})}
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label><Phone size={18}/> WhatsApp / Telefone *</label>
-                        <input 
-                            type="tel" 
-                            placeholder="Ex: (41) 99999-9999" 
-                            required
-                            value={customer.phone}
-                            onChange={e => setCustomer({...customer, phone: e.target.value})}
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label><Envelope size={18}/> E-mail (Opcional)</label>
-                        <input 
-                            type="email" 
-                            placeholder="Ex: joao@email.com"
-                            value={customer.email}
-                            onChange={e => setCustomer({...customer, email: e.target.value})}
-                        />
-                    </div>
-
-                    <div className="checkout-total-box">
-                        <span>Total a Pagar:</span>
-                        <strong>R$ {total.toFixed(2)}</strong>
-                    </div>
-
-                    <button type="submit" className="btn-send-whatsapp">
-                        Enviar Pedido no WhatsApp <WhatsappLogo size={22} weight="fill" />
-                    </button>
-                </form>
+          <div className="checkout-modal">
+            <div className="checkout-header">
+              <h2>Seus Dados</h2>
+              <button onClick={() => setIsCheckoutModalOpen(false)} className="close-modal-btn">
+                <X size={24} />
+              </button>
             </div>
+
+            <p className="checkout-info">Informe seus dados para identificarmos seu pedido no WhatsApp.</p>
+
+            <form onSubmit={handleSendToWhatsapp} className="checkout-form">
+              <div className="form-group">
+                <label><User size={18} /> Nome Completo *</label>
+                <input
+                  type="text"
+                  placeholder="Ex: João da Silva"
+                  required
+                  value={customer.name}
+                  onChange={e => setCustomer({ ...customer, name: e.target.value })}
+                />
+              </div>
+
+              <div className="form-group">
+                <label><Phone size={18} /> WhatsApp / Telefone *</label>
+                <input
+                  type="tel"
+                  placeholder="Ex: (41) 99999-9999"
+                  required
+                  value={customer.phone}
+                  onChange={e => setCustomer({ ...customer, phone: e.target.value })}
+                />
+              </div>
+
+              <div className="form-group">
+                <label><Envelope size={18} /> E-mail (Opcional)</label>
+                <input
+                  type="email"
+                  placeholder="Ex: joao@email.com"
+                  value={customer.email}
+                  onChange={e => setCustomer({ ...customer, email: e.target.value })}
+                />
+              </div>
+
+              <div className="checkout-total-box">
+                <span>Total a Pagar:</span>
+                <strong>R$ {total.toFixed(2)}</strong>
+              </div>
+
+              <button type="submit" className="btn-send-whatsapp">
+                Enviar Pedido no WhatsApp <WhatsappLogo size={22} weight="fill" />
+              </button>
+            </form>
+          </div>
         </div>
       )}
 
-      {/* CONTEÚDO PRINCIPAL - Aplica o filtro de Blur */}
+      {/* CONTEÚDO PRINCIPAL */}
       <div className={isProtected ? 'blur-content' : ''}>
-        
-        {/* HEADER */}
+
         <header className="pe-header">
           <div className="brand-wrapper">
-            <Logo height={40} />
+            <Logo/>
             <span className="brand-text">FOCO CAMPEIRO</span>
           </div>
           <button className="header-btn-cart" onClick={() => setIsCartOpen(true)}>
@@ -313,7 +338,6 @@ export function PublicEvent() {
           </button>
         </header>
 
-        {/* LIGHTBOX */}
         {selectedPhoto && (
           <div className="lightbox-overlay" onClick={() => setSelectedPhoto(null)}>
             <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
@@ -333,7 +357,6 @@ export function PublicEvent() {
           </div>
         )}
 
-        {/* SIDEBAR DO CARRINHO */}
         {isCartOpen && (
           <>
             <div className="cart-overlay" onClick={() => setIsCartOpen(false)} />
@@ -389,8 +412,7 @@ export function PublicEvent() {
           </>
         )}
 
-        {/* HERO */}
-        <div className="pe-hero" style={{backgroundImage: event.image_url ? `linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.9)), url(${event.image_url})` : 'none'}}>
+        <div className="pe-hero" style={{ backgroundImage: event.image_url ? `linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.9)), url(${event.image_url})` : 'none' }}>
           <h1>{event.name}</h1>
           <div className="pe-hero-meta">
             <span><Calendar size={18} /> {new Date(event.date + 'T12:00:00').toLocaleDateString('pt-BR')}</span>
@@ -398,7 +420,7 @@ export function PublicEvent() {
           </div>
           <p className="price-highlight">
             Fotos disponíveis por <strong>R$ {Number(singlePrice).toFixed(2)}</strong> cada
-            {hasPackages && <span style={{display: 'block', fontSize: '0.9rem', color: '#4CAF50', marginTop: 5, fontWeight: 'bold'}}>🔥 Adicione mais fotos para ativar os pacotes promocionais!</span>}
+            {hasPackages && <span style={{ display: 'block', fontSize: '0.9rem', color: '#4CAF50', marginTop: 5, fontWeight: 'bold' }}>🔥 Adicione mais fotos para ativar os pacotes promocionais!</span>}
           </p>
         </div>
 
@@ -408,7 +430,6 @@ export function PublicEvent() {
           </Link>
         </div>
 
-        {/* GRID */}
         <div className="pe-grid">
           {photos.map((photo) => {
             const isAdded = cart.find((i) => i.id === photo.id);
@@ -416,7 +437,7 @@ export function PublicEvent() {
               <div key={photo.id} className="photo-card-wrapper">
                 <img src={photo.image_url} alt="Foto" className="photo-card-img" loading="lazy" onClick={() => setSelectedPhoto(photo)} style={{ cursor: 'pointer' }} onContextMenu={(e) => e.preventDefault()} />
                 <span className="photo-name-tag">{photo.original_name || `ID ${photo.id}`}</span>
-                <div onClick={() => setSelectedPhoto(photo)} style={{position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', pointerEvents: 'none', opacity: 0.5}}>
+                <div onClick={() => setSelectedPhoto(photo)} style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', pointerEvents: 'none', opacity: 0.5 }}>
                   <MagnifyingGlassPlus size={32} color="white" />
                 </div>
                 <button className={`btn-add-cart ${isAdded ? 'added' : 'default'}`} onClick={(e) => { e.stopPropagation(); addToCart(photo); }}>

@@ -1,13 +1,20 @@
-/* src/components/Logo/Logo.css */
 .app-logo {
-  width: auto;
+  height: 80px; /* Tamanho ideal para um header de 70px/80px */
+  width: auto;  /* A largura se ajusta sozinha para não distorcer */
+  
+  /* Seus efeitos originais */
   transition: transform 0.3s ease, filter 0.3s ease;
   cursor: pointer;
-  /* O padrão profissional que você queria */
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
 }
 
 .app-logo:hover {
-  transform: scale(1.08); /* Aumenta um pouquinho */
-  filter: drop-shadow(0 0 10px rgba(218, 165, 32, 0.6)); /* Brilho Dourado */
+  transform: scale(1.08);
+  filter: drop-shadow(0 0 10px rgba(218, 165, 32, 0.6));
+}
+
+@media (max-width: 768px) {
+  .app-logo {
+    height: 40px; 
+  }
 }

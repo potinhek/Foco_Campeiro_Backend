@@ -200,3 +200,64 @@
 
 .empty-title { font-size: 20px; margin-bottom: 8px; }
 .empty-desc { color: #A0A0A0; }
+
+/* Ajustes para TABLETS (telas médias até 768px) */
+@media (max-width: 768px) {
+  .header {
+    padding: 0 20px; /* Reduz padding lateral do topo */
+  }
+
+  .main-content {
+    padding: 30px 20px; /* Reduz padding do conteúdo */
+  }
+}
+
+/* Ajustes para CELULARES (telas pequenas até 480px) */
+@media (max-width: 480px) {
+  
+  /* Cabeçalho mais compacto */
+  .header {
+    padding: 0 16px;
+    height: 60px;
+  }
+
+  .logo-text {
+    font-size: 12px; /* Texto do logo um pouco menor */
+  }
+
+  /* Título da página e botão ficam um embaixo do outro */
+  .page-header {
+    flex-direction: column; 
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  /* Botão "Novo Evento" ocupa a largura total para facilitar o clique */
+  .btn-primary {
+    width: 100%; 
+    justify-content: center;
+  }
+
+  .main-content {
+    padding: 20px 16px;
+  }
+
+  /* Força os cards a ficarem em 1 coluna só (lista vertical) */
+  .events-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Ajustes finos no card para telas pequenas */
+  .event-card {
+    border-left-width: 3px; 
+  }
+  
+  .card-title {
+    font-size: 18px;
+  }
+
+  .event-body {
+    padding: 16px;
+  }
+}

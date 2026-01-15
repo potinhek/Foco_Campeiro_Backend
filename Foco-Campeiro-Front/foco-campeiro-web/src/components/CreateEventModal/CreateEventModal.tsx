@@ -4,8 +4,8 @@ import { supabase } from '../../config/supabase';
 import './CreateEventModal.css';
 
 interface PackageRule {
-    quantity: number; 
-    price: number;    
+    quantity: number;
+    price: number;
 }
 
 interface CreateEventModalProps {
@@ -18,18 +18,19 @@ interface CreateEventModalProps {
 export function CreateEventModal({ isOpen, onClose, onSuccess, initialData }: CreateEventModalProps) {
     // --- DADOS BÁSICOS ---
     const [name, setName] = useState('');
+    const [slug, setSlug] = useState(''); // <--- NOVO ESTADO
     const [date, setDate] = useState('');
     const [location, setLocation] = useState('');
-    
-    // --- NOVO: FOTO DE CAPA ---
+
+    // --- FOTO DE CAPA ---
     const [file, setFile] = useState<File | null>(null);
     const [loading, setLoading] = useState(false);
 
     // --- PREÇOS E PACOTES ---
-    const [singlePrice, setSinglePrice] = useState('15.00'); 
+    const [singlePrice, setSinglePrice] = useState('15.00');
     const [packages, setPackages] = useState<PackageRule[]>([]);
-    
-    // Estados temporários para adicionar pacote
+
+    // Estados temporários
     const [newPkgQty, setNewPkgQty] = useState('');
     const [newPkgPrice, setNewPkgPrice] = useState('');
 
@@ -37,17 +38,17 @@ export function CreateEventModal({ isOpen, onClose, onSuccess, initialData }: Cr
     useEffect(() => {
         if (isOpen && initialData) {
             setName(initialData.name);
+            setSlug(initialData.slug || ''); // <--- Carrega o slug se existir
             setDate(initialData.date);
             setLocation(initialData.location);
-            // Se tiver preço salvo, carrega aqui. 
-            // Exemplo assumindo que initialData.pricing existe:
             if (initialData.pricing) {
-                 setSinglePrice(initialData.pricing.single?.toString() || '15.00');
-                 setPackages(initialData.pricing.packages || []);
+                setSinglePrice(initialData.pricing.single?.toString() || '15.00');
+                setPackages(initialData.pricing.packages || []);
             }
         } else if (isOpen && !initialData) {
             // Limpa tudo se for criar novo
             setName('');
+            setSlug(''); // <--- Limpa o slug
             setDate('');
             setLocation('');
             setFile(null);
@@ -60,6 +61,22 @@ export function CreateEventModal({ isOpen, onClose, onSuccess, initialData }: Cr
 
     if (!isOpen) return null;
 
+    // --- AO DIGITAR O NOME ---
+    function handleNameChange(e: React.ChangeEvent<HTMLInputElement>) {
+        const newName = e.target.value;
+        setName(newName);
+
+        // Só gera o slug automático se for um evento NOVO (não estamos editando um antigo)
+        if (!initialData) {
+            const autoSlug = newName
+                .toLowerCase()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, "") // Tira acentos
+                .replace(/\s+/g, '-') // Espaço vira traço
+                .replace(/[^\w\-]+/g, ''); // Remove especiais
+            setSlug(autoSlug);
+        }
+    }
+
     // --- LÓGICA DE PACOTES ---
     function handleAddPackage() {
         if (!newPkgQty || !newPkgPrice) return;
@@ -69,11 +86,8 @@ export function CreateEventModal({ isOpen, onClose, onSuccess, initialData }: Cr
             price: parseFloat(newPkgPrice)
         };
 
-        // Adiciona e ordena por quantidade
         const updatedList = [...packages, newRule].sort((a, b) => a.quantity - b.quantity);
         setPackages(updatedList);
-        
-        // Limpa os campos
         setNewPkgQty('');
         setNewPkgPrice('');
     }
@@ -82,15 +96,15 @@ export function CreateEventModal({ isOpen, onClose, onSuccess, initialData }: Cr
         setPackages(packages.filter((_, i) => i !== index));
     }
 
-    // --- SALVAR TUDO (COM CORREÇÃO PARA PACOTE ESQUECIDO) ---
+    // --- SALVAR TUDO ---
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         setLoading(true);
-        
+
         try {
             let publicUrl = initialData?.image_url || null;
 
-            // 1. UPLOAD DA FOTO (Se houver)
+            // 1. UPLOAD DA FOTO
             if (file) {
                 const fileName = `${Date.now()}_cover_${file.name}`;
                 const { error: uploadError } = await supabase.storage
@@ -102,44 +116,39 @@ export function CreateEventModal({ isOpen, onClose, onSuccess, initialData }: Cr
                 const { data } = supabase.storage
                     .from('event-photos')
                     .getPublicUrl(fileName);
-                
+
                 publicUrl = data.publicUrl;
             }
 
-            // --- A MÁGICA ACONTECE AQUI (CORREÇÃO DE UX) ---
-            // Cria uma cópia da lista atual de pacotes
+            // 2. PACOTES (Correção de UX)
             let finalPackages = [...packages];
-            
-            // Verifica se o usuário digitou números nos campos mas esqueceu de clicar no "+"
             if (newPkgQty && newPkgPrice) {
                 const qty = parseInt(newPkgQty);
                 const price = parseFloat(newPkgPrice);
-                
-                // Se os valores forem válidos, adiciona na lista final
                 if (!isNaN(qty) && !isNaN(price)) {
                     finalPackages.push({ quantity: qty, price: price });
-                    // Ordena novamente para garantir consistência
                     finalPackages.sort((a, b) => a.quantity - b.quantity);
                 }
             }
-            // -----------------------------------------------
 
-            // 2. MONTA O OBJETO FINAL
+            // 3. MONTA O OBJETO FINAL (INCLUINDO SLUG)
+            // Dentro do handleSubmit...
+
             const eventData = {
-                id: initialData?.id, 
+                id: initialData?.id,
                 name,
+                // ALTERE AQUI: Garante que vai minúsculo e sem acentos
+                slug: slug.toLowerCase().trim().replace(/\s+/g, '-'),
                 date,
                 location,
                 image_url: publicUrl,
                 pricing: {
                     single: parseFloat(singlePrice),
-                    packages: finalPackages // Usa a lista corrigida (incluindo o pacote esquecido)
+                    packages: finalPackages
                 }
             };
 
-            // 3. ENVIA PARA O DASHBOARD
             await onSuccess(eventData);
-            
             setFile(null);
             onClose();
 
@@ -165,20 +174,39 @@ export function CreateEventModal({ isOpen, onClose, onSuccess, initialData }: Cr
                     {/* DADOS BÁSICOS */}
                     <div className="form-group">
                         <label>Nome do Evento</label>
-                        <input 
-                            type="text" 
-                            placeholder="Ex: Rodeio de Vacaria" 
+                        <input
+                            type="text"
+                            placeholder="Ex: Rodeio de Vacaria"
                             value={name}
-                            onChange={e => setName(e.target.value)}
+                            onChange={handleNameChange} // <--- Usando a nova função aqui
                             required
                         />
+                    </div>
+
+                    {/* --- CAMPO NOVO: SLUG --- */}
+                    <div className="form-group">
+                        <label>Link Personalizado</label>
+                        <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+                            <span style={{ color: '#666', fontSize: '0.8rem' }}>fococampeiro.com/galeria/</span>
+                            <input
+                                type="text"
+                                required
+                                value={slug}
+                                // ALTERE AQUI:
+                                onChange={e => {
+                                    // Força minúsculo e troca espaço por hífen na hora que digita
+                                    setSlug(e.target.value.toLowerCase().replace(/\s+/g, '-'));
+                                }}
+                                style={{ flex: 1 }} // Mantenha seu estilo atual
+                            />
+                        </div>
                     </div>
 
                     <div className="form-row">
                         <div className="form-group">
                             <label>Data</label>
-                            <input 
-                                type="date" 
+                            <input
+                                type="date"
                                 value={date}
                                 onChange={e => setDate(e.target.value)}
                                 required
@@ -186,9 +214,9 @@ export function CreateEventModal({ isOpen, onClose, onSuccess, initialData }: Cr
                         </div>
                         <div className="form-group">
                             <label>Local</label>
-                            <input 
-                                type="text" 
-                                placeholder="Cidade/Parque" 
+                            <input
+                                type="text"
+                                placeholder="Cidade/Parque"
                                 value={location}
                                 onChange={e => setLocation(e.target.value)}
                                 required
@@ -200,22 +228,22 @@ export function CreateEventModal({ isOpen, onClose, onSuccess, initialData }: Cr
                     <div className="form-group">
                         <label>Foto da Capa</label>
                         <div style={{
-                            border: '1px dashed #444', padding: '10px', 
-                            borderRadius: '4px', textAlign: 'center', 
+                            border: '1px dashed #444', padding: '10px',
+                            borderRadius: '4px', textAlign: 'center',
                             background: '#222', cursor: 'pointer'
                         }}>
-                            <label htmlFor="cover-upload" style={{cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, width: '100%'}}>
-                                <UploadSimple size={20} color="#DAA520"/>
-                                <span style={{color: file ? '#DAA520' : '#ccc'}}>
+                            <label htmlFor="cover-upload" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, width: '100%' }}>
+                                <UploadSimple size={20} color="#DAA520" />
+                                <span style={{ color: file ? '#DAA520' : '#ccc' }}>
                                     {file ? file.name : "Escolher imagem de capa..."}
                                 </span>
                             </label>
-                            <input 
-                                id="cover-upload" 
-                                type="file" 
+                            <input
+                                id="cover-upload"
+                                type="file"
                                 accept="image/*"
                                 onChange={e => setFile(e.target.files ? e.target.files[0] : null)}
-                                style={{ display: 'none' }} 
+                                style={{ display: 'none' }}
                             />
                         </div>
                     </div>
@@ -223,42 +251,42 @@ export function CreateEventModal({ isOpen, onClose, onSuccess, initialData }: Cr
                     {/* PREÇOS */}
                     <div className="price-section">
                         <span className="section-title">
-                            <CurrencyDollar size={18} style={{verticalAlign: 'middle'}}/> Configuração de Valores
+                            <CurrencyDollar size={18} style={{ verticalAlign: 'middle' }} /> Configuração de Valores
                         </span>
 
-                        <div className="form-group" style={{maxWidth: '150px'}}>
+                        <div className="form-group" style={{ maxWidth: '150px' }}>
                             <label>Preço Unitário (1 Foto)</label>
-                            <input 
-                                type="number" 
+                            <input
+                                type="number"
                                 step="0.50"
                                 value={singlePrice}
                                 onChange={e => setSinglePrice(e.target.value)}
                             />
                         </div>
 
-                        <div style={{marginTop: 15}}>
-                            <label style={{fontSize: 12, color: '#888', marginBottom: 5, display: 'block'}}>
+                        <div style={{ marginTop: 15 }}>
+                            <label style={{ fontSize: 12, color: '#888', marginBottom: 5, display: 'block' }}>
                                 Criar Pacote Promocional
                             </label>
                             <div className="input-row">
                                 <div className="input-group">
-                                    <input 
-                                        type="number" 
-                                        placeholder="Qtd (Ex: 5)" 
+                                    <input
+                                        type="number"
+                                        placeholder="Qtd (Ex: 5)"
                                         value={newPkgQty}
                                         onChange={e => setNewPkgQty(e.target.value)}
                                     />
                                 </div>
                                 <div className="input-group">
-                                    <input 
-                                        type="number" 
-                                        placeholder="Total (Ex: 50)" 
+                                    <input
+                                        type="number"
+                                        placeholder="Total (Ex: 50)"
                                         value={newPkgPrice}
                                         onChange={e => setNewPkgPrice(e.target.value)}
                                     />
                                 </div>
                                 <button type="button" className="btn-add-pkg" onClick={handleAddPackage} title="Adicionar Pacote">
-                                    <Plus size={20} weight="bold"/>
+                                    <Plus size={20} weight="bold" />
                                 </button>
                             </div>
                         </div>
@@ -269,7 +297,7 @@ export function CreateEventModal({ isOpen, onClose, onSuccess, initialData }: Cr
                                 {packages.map((pkg, index) => (
                                     <div key={index} className="package-item">
                                         <span className="package-info">
-                                            <Tag size={14} style={{marginRight: 8, verticalAlign: 'middle'}}/>
+                                            <Tag size={14} style={{ marginRight: 8, verticalAlign: 'middle' }} />
                                             Leve <strong>{pkg.quantity}</strong> fotos por <strong>R$ {pkg.price.toFixed(2)}</strong>
                                         </span>
                                         <button type="button" className="btn-remove-pkg" onClick={() => handleRemovePackage(index)}>

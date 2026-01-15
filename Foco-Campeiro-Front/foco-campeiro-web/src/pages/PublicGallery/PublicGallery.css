@@ -1,20 +1,17 @@
-/* src/pages/PublicGallery/PublicGallery.css */
+@import url('https://fonts.googleapis.com/css2?family=Rye&display=swap');
 
 .gallery-container {
   min-height: 100vh;
-  /* ADICIONE ESTA LINHA: Garante que a página ocupe 100% da largura da tela */
   width: 100%; 
   background-color: #050505;
   color: #FFF;
   font-family: 'Inter', sans-serif;
-  /* Remove margens padrões que podem atrapalhar */
   margin: 0;
   padding: 0;
 }
 
-/* Header Simples */
+/* Header */
 .gallery-header {
-  /* Garante que o header também ocupe tudo */
   width: 100%; 
   height: 70px;
   border-bottom: 1px solid #222;
@@ -22,11 +19,28 @@
   align-items: center;
   justify-content: center;
   background-color: #000;
+  position: relative; /* Necessário para o botão absoluto funcionar */
+}
+
+/* Botão Área do Fotógrafo (Extraído do style inline) */
+.btn-photographer {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: transparent;
+  border: none;
+  color: #888; /* Ajustei a cor para aparecer no fundo preto (antes estava #333 invisível) */
+  font-size: 12px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.btn-photographer:hover {
+  color: #DAA520;
 }
 
 /* Banner Principal */
 .gallery-hero {
-  /* Garante que o banner ocupe tudo */
   width: 100%;
   text-align: center;
   padding: 80px 20px;
@@ -34,16 +48,9 @@
               url('https://images.unsplash.com/photo-1598556776374-2c0eb4fb2c52?auto=format&fit=crop&q=80');
   background-size: cover;
   background-position: center;
-  /* Garante que a imagem de fundo cubra tudo sem repetir */
   background-repeat: no-repeat;
+}
 
-}
-.brand-text {
-  font-family: Arial;
-  color: #DAA520;
-  font-size: 25px;
-  letter-spacing: 1px;
-}
 .gallery-hero h1 {
   font-size: 38px;
   font-weight: 800;
@@ -57,6 +64,40 @@
   max-width: 600px;
   margin: 0 auto;
 }
+
+/* --- ESTILOS DE CARREGAMENTO E VAZIO (Novos) --- */
+.loading-text {
+  text-align: center;
+  color: #ccc;
+}
+
+.empty-state-gallery {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.empty-icon {
+  margin-bottom: 10px;
+  opacity: 0.5;
+}
+
+/* Placeholder quando não tem imagem */
+.img-placeholder {
+  width: 100%;
+  height: 100%;
+  background: #222;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Utilitários para ícones */
+.icon-inline {
+  vertical-align: middle;
+}
+.mr-4 { margin-right: 4px; }
+.ml-5 { margin-left: 5px; }
 
 /* Grid de Eventos */
 .events-section {
@@ -79,7 +120,7 @@
   gap: 30px;
 }
 
-/* Card do Evento Público */
+/* Card do Evento */
 .public-card {
   background-color: #121212;
   border-radius: 12px;
@@ -160,4 +201,25 @@
   background-color: #DAA520;
   color: #000;
   border-color: #DAA520;
+}
+
+/* --- CONTROLE DA LOGO --- */
+.gallery-header img,
+.gallery-header svg {
+  height: 70px;
+  width: auto;
+  transition: transform 0.3s ease;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.gallery-header img:hover,
+.gallery-header svg:hover {
+  transform: scale(1.05);
+}
+
+@media (max-width: 480px) {
+  .gallery-header img,
+  .gallery-header svg {
+    height: 50px;
+  }
 }

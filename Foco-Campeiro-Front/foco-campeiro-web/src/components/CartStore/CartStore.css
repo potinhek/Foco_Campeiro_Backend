@@ -25,21 +25,20 @@
   position: fixed;
   top: 0;
   right: 0;
-  height: 100vh;
+  height: 100dvh;
   
   /* RESPONSIVIDADE: */
-  width: 85%; /* No celular ocupa quase tudo (mas deixa ver o fundo) */
-  max-width: 380px; /* No PC trava em 380px para não ficar gigante */
-  
+  width: 85%; 
+  max-width: 380px;
   background-color: #111;
   border-left: 1px solid #333;
   box-shadow: -5px 0 20px rgba(0,0,0,0.9);
   z-index: 1000;
-  
   transform: translateX(100%);
   transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   display: flex;
   flex-direction: column;
+  overflow: hidden; 
 }
 
 .cart-store.open {
@@ -83,6 +82,8 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  min-height: 0;
+  
 }
 
 /* O CARD DO ITEM (Aqui estava o problema da imagem gigante) */
@@ -153,8 +154,10 @@
   padding: 20px;
   border-top: 1px solid #222;
   background-color: #0a0a0a;
-  /* Garante que fique fixo embaixo mesmo no celular */
-  padding-bottom: max(20px, env(safe-area-inset-bottom)); 
+  z-index: 1002;
+  
+  /* Padrão para PC */
+  padding-bottom: 20px;
 }
 
 .cart-total {

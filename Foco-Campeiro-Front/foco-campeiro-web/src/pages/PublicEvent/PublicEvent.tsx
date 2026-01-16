@@ -9,7 +9,6 @@ import {
   Trash,
   WhatsappLogo,
   MagnifyingGlassPlus,
-  ShieldWarning,
   CheckCircle,
   User,
   Phone,
@@ -53,44 +52,33 @@ export function PublicEvent() {
   useEffect(() => {
     localStorage.setItem('@FocoCampeiro:customer', JSON.stringify(customer));
   }, [customer]);
+  useEffect(() => {
+    // 1. Verifica se temos o slug da URL
+    if (!slug) return; 
 
+    // 2. Pega qual foi o último evento visitado
+    const lastEventSlug = localStorage.getItem('@FocoCampeiro:last_event_slug');
+
+    // 3. Se existe um evento salvo E ele é diferente do atual...
+    if (lastEventSlug && lastEventSlug !== slug) {
+      console.log("Troca de evento detectada! Limpando carrinho anterior...");
+      
+      // Zera o estado do React (visual)
+      setCart([]); 
+      
+      // Remove o carrinho salvo no LocalStorage
+      localStorage.removeItem('@FocoCampeiro:cart');
+    }
+    // 4. Salva o evento atual como o "último visitado"
+    localStorage.setItem('@FocoCampeiro:last_event_slug', slug);
+    
+  }, [slug]); // Só roda quando o SLUG mudar
   // --- TOAST ---
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   function showToast(msg: string) {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
   }
-
-  // --- PROTEÇÃO DE CONTEÚDO ---
-  const [isProtected, setIsProtected] = useState(false);
-
-  useEffect(() => {
-    const handleBlur = () => setIsProtected(true);
-    const handleFocus = () => setIsProtected(false);
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'PrintScreen') {
-        setIsProtected(true);
-        if (navigator.clipboard) {
-          try { navigator.clipboard.writeText('Conteúdo protegido.'); } catch { }
-        }
-      }
-    };
-
-    window.addEventListener('blur', handleBlur);
-    window.addEventListener('focus', handleFocus);
-    window.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      window.removeEventListener('blur', handleBlur);
-      window.removeEventListener('focus', handleFocus);
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, []);
-
-  const handleUnlock = () => {
-    setIsProtected(false);
-    window.focus();
-  };
 
   // --- CARREGAMENTO INTELIGENTE (SLUG ou ID) ---
   useEffect(() => {
@@ -110,12 +98,12 @@ export function PublicEvent() {
 
         // 2. FALLBACK: Se não achou e o slug parece um número (ex: "3"), tenta buscar pelo ID
         if (!eventData && !isNaN(Number(slug))) {
-             const { data: eventById } = await supabase
-                .from('events')
-                .select('*')
-                .eq('id', slug)
-                .single();
-             eventData = eventById;
+          const { data: eventById } = await supabase
+            .from('events')
+            .select('*')
+            .eq('id', slug)
+            .single();
+          eventData = eventById;
         }
 
         if (!eventData) {
@@ -255,16 +243,8 @@ export function PublicEvent() {
         </div>
       )}
 
-      {/* PROTEÇÃO (CURTAIN) */}
-      {isProtected && (
-        <div className="security-curtain" onClick={handleUnlock}>
-          <div className="security-msg">
-            <ShieldWarning size={64} color="#FFD700" style={{ marginBottom: 10 }} />
-            <h2>Conteúdo Protegido</h2>
-            <p>Clique aqui para voltar a visualizar.</p>
-          </div>
-        </div>
-      )}
+
+
 
       {/* MODAL DE CHECKOUT */}
       {isCheckoutModalOpen && (
@@ -326,11 +306,10 @@ export function PublicEvent() {
       )}
 
       {/* CONTEÚDO PRINCIPAL */}
-      <div className={isProtected ? 'blur-content' : ''}>
-
+      <div>
         <header className="pe-header">
           <div className="brand-wrapper">
-            <Logo/>
+            <Logo />
             <span className="brand-text">FOCO CAMPEIRO</span>
           </div>
           <button className="header-btn-cart" onClick={() => setIsCartOpen(true)}>

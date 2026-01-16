@@ -2,11 +2,24 @@
 
 /* --- CONFIGURAÇÕES GERAIS --- */
 
+* {
+    box-sizing: border-box; /* O segredo mágico */
+    margin: 0;
+    padding: 0;
+    touch-action: pan-y;
+}   
+html, body {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden; /* Corta o excesso lateral impiedosamente */
+    position: relative; /* Ajuda a travar */
+    background-color: #050505;  
+}
 .public-event-container {
-    min-height: 100vh;
-    background-color: #050505;
-    color: #FFF;
-    font-family: 'Inter', sans-serif;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    position: relative;
     padding-bottom: 40px;
 }
 
@@ -35,6 +48,21 @@
     align-items: center;
     gap: 10px;
 }
+
+/* --- CONTROLE DA LOGO (Novo) --- */
+/* Como removemos o height={40} do React, controlamos aqui */
+.brand-wrapper img,
+.brand-wrapper svg {
+    height: 60px; /* Ajuste o tamanho aqui */
+    width: auto;
+    transition: transform 0.3s ease;
+}
+
+.brand-wrapper img:hover,
+.brand-wrapper svg:hover {
+    transform: scale(1.05);
+}
+/* ------------------------------- */
 
 .brand-text {
     color: white;
@@ -69,20 +97,21 @@
     background: rgba(0,0,0,0.7);
     z-index: 998;
     animation: fadeIn 0.3s;
+    backdrop-filter: blur(2px);
 }
-
 .cart-sidebar {
     position: fixed;
     top: 0;
+    bottom: 0; 
     right: 0;
     width: 350px;
-    max-width: 85%;
-    height: 100%;
+    max-width: 85%; 
+    height: auto;  
     background: #1a1a1a;
     z-index: 999;
-    padding: 20px;
     display: flex;
     flex-direction: column;
+    overflow: hidden;  
     box-shadow: -5px 0 15px rgba(0,0,0,0.5);
     animation: slideIn 0.3s;
 }
@@ -107,9 +136,11 @@
 .btn-close:hover { color: #ff4444; }
 
 .cart-items-list {
-    flex: 1;
-    overflow-y: auto;
+    flex: 1;            
+    overflow-y: auto;   
     padding-right: 5px;
+    min-height: 0;     
+    padding: 15px;
 }
 
 .cart-empty-msg {
@@ -159,9 +190,13 @@
 
 /* Área de Totais do Carrinho */
 .cart-footer {
+    flex-shrink: 0; 
     border-top: 1px solid #444;
-    padding-top: 20px;
-    margin-top: 10px;
+    background-color: #1a1a1a; 
+    z-index: 1002;
+    padding: 20px;
+    margin-top: 0; 
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 20px));
 }
 
 .cart-resume {
@@ -386,7 +421,7 @@
 }
 .btn-add-large:hover { transform: scale(1.05); background: #FFD700; }
 
-/* --- PROTEÇÃO E UI (BANLEK STYLE) --- */
+/* --- UTILITÁRIOS (Sem as proteções de print) --- */
 .no-select {
     user-select: none;
     -webkit-user-select: none;
@@ -396,49 +431,7 @@
 
 img {
     -webkit-user-drag: none;
-    user-drag: none;
     pointer-events: auto;
-}
-
-/* O BORRÃO PRINCIPAL */
-.blur-content {
-    filter: blur(20px); /* Borrão forte */
-    transition: filter 0.3s ease-out; /* Transição suave */
-    pointer-events: none;
-}
-
-/* A CORTINA DE PROTEÇÃO */
-.security-curtain {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0,0,0,0.4);
-    z-index: 10000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    backdrop-filter: blur(5px);
-}
-
-.security-msg {
-    text-align: center;
-    color: #fff;
-    background: rgba(0, 0, 0, 0.8);
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    animation: fadeIn 0.1s ease-out;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.security-msg h2 {
-    color: #DAA520;
-    margin-bottom: 10px;
 }
 
 .toast-notification {
@@ -548,4 +541,39 @@ img {
 /* Proteção contra impressão */
 @media print {
   body { display: none !important; }
+}
+
+@media (max-width: 768px) {
+    .pe-grid {
+        /* Força sempre 2 colunas iguais */
+        grid-template-columns: repeat(2, 1fr); 
+        
+        /* Diminui o espaço entre as fotos para caber mais */
+        gap: 8px; 
+        
+        /* Diminui a borda lateral (estava 40px, muito grande pra celular) */
+        padding: 0 10px; 
+    }
+
+    /* Ajuste opcional: Diminui um pouco o botão do carrinho na foto */
+    .btn-add-cart {
+        width: 30px;
+        height: 30px;
+        bottom: 5px;
+        right: 5px;
+    }
+    
+    .btn-add-cart svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    /* Ajuste do Título e Capa para não ocupar tanto espaço */
+    .pe-hero {
+        padding: 40px 15px;
+    }
+    
+    .pe-hero h1 {
+        font-size: 1.8rem;
+    }
 }

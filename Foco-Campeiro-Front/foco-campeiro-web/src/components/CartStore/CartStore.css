@@ -1,6 +1,6 @@
 /* src/components/CartStore/CartStore.css */
 
-/* Fundo escuro */
+/* --- 1. FUNDO ESCURO (OVERLAY) --- */
 .cart-overlay {
   position: fixed;
   top: 0;
@@ -12,7 +12,7 @@
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s;
-  backdrop-filter: blur(2px); /* Efeito de desfoque chique */
+  backdrop-filter: blur(2px);
 }
 
 .cart-overlay.open {
@@ -20,40 +20,46 @@
   visibility: visible;
 }
 
-/* A Gaveta Lateral */
+/* --- 2. A GAVETA (ESTRUTURA PRINCIPAL) --- */
 .cart-store {
   position: fixed;
   top: 0;
+  bottom: 0; 
   right: 0;
-  height: 100dvh;
   
-  /* RESPONSIVIDADE: */
+  /* Regras de Desktop (Padrão) */
   width: 85%; 
   max-width: 380px;
+  height: 100%; /* Garante que ocupe a altura toda no PC */
+  
   background-color: #111;
   border-left: 1px solid #333;
   box-shadow: -5px 0 20px rgba(0,0,0,0.9);
   z-index: 1000;
+  
+  /* Animação de Entrada */
   transform: translateX(100%);
   transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  
+  /* Layout Flex (O Segredo do Rodapé Fixo) */
   display: flex;
   flex-direction: column;
-  overflow: hidden; 
 }
 
 .cart-store.open {
   transform: translateX(0);
 }
 
-/* Cabeçalho do Carrinho */
+/* --- 3. CABEÇALHO --- */
 .cart-header {
+  flex-shrink: 0; /* Impede de encolher */
   padding: 20px;
   border-bottom: 1px solid #222;
   display: flex;
   justify-content: space-between;
   align-items: center;
   background-color: #0a0a0a;
-  min-height: 70px; /* Garante altura para o dedo clicar */
+  min-height: 70px;
 }
 
 .cart-title {
@@ -68,65 +74,67 @@
   border: none;
   color: #888;
   cursor: pointer;
-  padding: 8px; /* Área de clique maior */
+  padding: 8px;
   border-radius: 50%;
   transition: background 0.2s;
 }
 .close-btn:hover { background-color: rgba(255,255,255,0.1); color: #FFF; }
 
-/* Lista de Itens (Com rolagem) */
+/* --- 4. LISTA DE ITENS (SCROLL) --- */
 .cart-items {
-  flex: 1;
-  overflow-y: auto;
+  flex: 1;              /* Ocupa todo o espaço livre */
+  overflow-y: auto;     /* Scroll apenas aqui */
   padding: 15px;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  min-height: 0;
+  min-height: 0;        
   
+  /* Melhora a rolagem no iPhone */
+  -webkit-overflow-scrolling: touch; 
 }
 
-/* O CARD DO ITEM (Aqui estava o problema da imagem gigante) */
+/* Estilo da Barra de Rolagem (Fica mais bonito no Windows) */
+.cart-items::-webkit-scrollbar { width: 6px; }
+.cart-items::-webkit-scrollbar-track { background: #121214; }
+.cart-items::-webkit-scrollbar-thumb { background-color: #333; border-radius: 10px; }
+
+/* --- 5. CARD DO ITEM --- */
 .cart-item {
   display: flex;
-  align-items: center; /* Alinha tudo no centro verticalmente */
+  align-items: center;
   gap: 12px;
   background-color: #1a1a1a;
   padding: 10px;
   border-radius: 8px;
   border: 1px solid #333;
-  transition: border-color 0.2s;
+  flex-shrink: 0; /* Garante tamanho fixo */
 }
 
-.cart-item:hover { border-color: #444; }
-
-/* MINIATURA DA FOTO - Travada em 70px */
 .cart-item-img {
-  width: 70px !important;  /* O !important garante que nada sobrescreva */
-  height: 70px !important;
-  min-width: 70px; /* Garante que não esmague no celular */
+  width: 70px;  /* Tirei o !important, geralmente não precisa se o CSS estiver limpo */
+  height: 70px;
   object-fit: cover;
   border-radius: 6px;
   border: 1px solid #333;
+  flex-shrink: 0; /* Garante que a imagem não amasse */
 }
 
-/* Informações do Item */
 .cart-item-info {
-  flex: 1; /* Ocupa o espaço que sobrar */
+  flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   gap: 4px;
-  overflow: hidden; /* Evita texto estourando */
+  overflow: hidden;
 }
 
 .item-name {
   font-size: 14px;
   color: #FFF;
   font-weight: 600;
-  white-space: nowrap;       /* Corta texto muito longo */
+  white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;   /* Adiciona (...) */
+  text-overflow: ellipsis;
 }
 
 .item-price {
@@ -135,7 +143,6 @@
   font-weight: 500;
 }
 
-/* Botão de Lixeira */
 .remove-btn {
   background: rgba(255, 68, 68, 0.1);
   border: none;
@@ -143,21 +150,18 @@
   cursor: pointer;
   padding: 8px;
   border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
-.remove-btn:active { background-color: rgba(255, 68, 68, 0.3); }
 
-/* Rodapé */
+/* --- 6. RODAPÉ E BOTÃO --- */
 .cart-footer {
+  flex-shrink: 0;
   padding: 20px;
   border-top: 1px solid #222;
   background-color: #0a0a0a;
   z-index: 1002;
   
-  /* Padrão para PC */
-  padding-bottom: 20px;
+  /* Área segura para iPhone (Funciona Globalmente) */
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 10px));
 }
 
 .cart-total {
@@ -168,6 +172,11 @@
   font-weight: bold;
   margin-bottom: 15px;
 }
+
+/* Classes para os descontos e pacotes */
+.calculation-summary { margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 6px; border: 1px dashed #333; }
+.discount-badge { font-size: 0.85rem; color: #888; margin-bottom: 5px; display: block; }
+.packages-applied { font-size: 0.75rem; color: #DAA520; margin-top: 5px; display: flex; align-items: center; gap: 5px; }
 
 .btn-finalize {
   width: 100%;
@@ -187,3 +196,22 @@
 }
 
 .btn-finalize:active { transform: scale(0.98); }
+
+/* --- 7. RESPONSIVIDADE (MOBILE) --- */
+/* Aqui só colocamos o que MUDA no celular */
+@media (max-width: 480px) {
+  .cart-store {
+    width: 100%;        
+    max-width: none;    
+    border-left: none;  
+    
+    /* Usa dvh para ignorar a barra de endereço do navegador mobile */
+    height: 100dvh;     
+  }
+
+  .cart-header {
+    padding: 15px; /* Topo mais compacto */
+  }
+  
+  /* Não precisa repetir o .cart-footer padding aqui, o global calc() já resolve */
+} 

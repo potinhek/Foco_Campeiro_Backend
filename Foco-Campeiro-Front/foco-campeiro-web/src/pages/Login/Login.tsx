@@ -7,7 +7,7 @@ import { Logo } from '../../components/Logo/Logo'; // Vamos usar teu componente 
 
 export function Login() {
   const navigate = useNavigate();
-  
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -31,7 +31,7 @@ export function Login() {
 
       // 2. Se chegou aqui, o login foi sucesso!
       console.log("Login realizado:", data);
-      
+
       // Opcional: Se quiseres guardar dados extras do usuário
       // localStorage.setItem('user', JSON.stringify(data.user));
 
@@ -50,7 +50,7 @@ export function Login() {
   return (
     <div className="login-container">
       <div className="login-card">
-        
+
         {/* Usando teu Componente Logo novo para ficar padrão */}
         <div className="logo-area" style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
           <Logo height={70} />
@@ -59,14 +59,14 @@ export function Login() {
         <h2 className="login-title">Acesse sua conta</h2>
 
         <form onSubmit={handleLogin}>
-          
+
           {/* Campo E-mail */}
           <div className="form-group">
             <div className="input-wrapper">
               <Envelope className="input-icon" />
-              <input 
-                type="email" 
-                className="custom-input" 
+              <input
+                type="email"
+                className="custom-input"
                 placeholder="Seu e-mail"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -79,9 +79,9 @@ export function Login() {
           <div className="form-group">
             <div className="input-wrapper">
               <Lock className="input-icon" />
-              <input 
-                type="password" 
-                className="custom-input" 
+              <input
+                type="password"
+                className="custom-input"
                 placeholder="Sua senha"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -91,8 +91,7 @@ export function Login() {
           </div>
 
           {/* Mensagem de Erro */}
-          {error && <p className="error-msg" style={{color: '#ff6b6b', fontSize: '0.9rem', marginBottom: '10px'}}>{error}</p>}
-
+          {error && <div className="error-msg">{error}</div>}
           <button type="submit" className="btn-login" disabled={loading}>
             {loading ? 'Entrando...' : 'ENTRAR'}
           </button>
@@ -102,7 +101,7 @@ export function Login() {
           <Link to="/forgot-password" className="link-subtle">
             Esqueci minha senha
           </Link>
-          
+
           {/* Se não quiser cadastro aberto, podes remover essa parte */}
           {/* <span>
             Não tem uma conta?{' '}

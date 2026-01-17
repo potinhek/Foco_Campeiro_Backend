@@ -5,21 +5,22 @@ import {
   Calendar,
   MapPin,
   ArrowLeft,
-  X,
-  Trash,
   WhatsappLogo,
   MagnifyingGlassPlus,
   CheckCircle,
   User,
   Phone,
-  Envelope
+  Envelope,
+  X // Mantive o X pois é usado no Modal de Checkout e Lightbox
 } from '@phosphor-icons/react';
 import { supabase } from '../../config/supabase';
 import { Logo } from '../../components/Logo/Logo';
 import './PublicEvent.css';
 
+// Importa o componente novo do carrinho
+import { CartStore } from '../../components/CartStore/CartStore';
+
 export function PublicEvent() {
-  // Pega o parâmetro da URL (pode ser "canoinhas" ou "15")
   const { slug } = useParams();
 
   // --- DADOS DO EVENTO ---
@@ -32,47 +33,39 @@ export function PublicEvent() {
     const savedCart = localStorage.getItem('@FocoCampeiro:cart');
     return savedCart ? JSON.parse(savedCart) : [];
   });
+
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<any>(null);
 
-  // --- DADOS DO CLIENTE (Com memória) ---
+  // --- DADOS DO CLIENTE ---
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
-
   const [customer, setCustomer] = useState(() => {
     const saved = localStorage.getItem('@FocoCampeiro:customer');
     return saved ? JSON.parse(saved) : { name: '', phone: '', email: '' };
   });
 
-  // Salva automaticamente o carrinho
+  // --- PERSISTÊNCIA ---
   useEffect(() => {
     localStorage.setItem('@FocoCampeiro:cart', JSON.stringify(cart));
   }, [cart]);
 
-  // Salva automaticamente os dados do cliente
   useEffect(() => {
     localStorage.setItem('@FocoCampeiro:customer', JSON.stringify(customer));
   }, [customer]);
-  useEffect(() => {
-    // 1. Verifica se temos o slug da URL
-    if (!slug) return; 
 
-    // 2. Pega qual foi o último evento visitado
+  // --- LIMPEZA DE CARRINHO AO TROCAR DE EVENTO ---
+  useEffect(() => {
+    if (!slug) return;
     const lastEventSlug = localStorage.getItem('@FocoCampeiro:last_event_slug');
 
-    // 3. Se existe um evento salvo E ele é diferente do atual...
     if (lastEventSlug && lastEventSlug !== slug) {
       console.log("Troca de evento detectada! Limpando carrinho anterior...");
-      
-      // Zera o estado do React (visual)
-      setCart([]); 
-      
-      // Remove o carrinho salvo no LocalStorage
+      setCart([]);
       localStorage.removeItem('@FocoCampeiro:cart');
     }
-    // 4. Salva o evento atual como o "último visitado"
     localStorage.setItem('@FocoCampeiro:last_event_slug', slug);
-    
-  }, [slug]); // Só roda quando o SLUG mudar
+  }, [slug]);
+
   // --- TOAST ---
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   function showToast(msg: string) {
@@ -80,7 +73,7 @@ export function PublicEvent() {
     setTimeout(() => setToastMessage(null), 3000);
   }
 
-  // --- CARREGAMENTO INTELIGENTE (SLUG ou ID) ---
+  // --- CARREGAMENTO DE DADOS ---
   useEffect(() => {
     async function loadData() {
       if (!slug) return;
@@ -88,15 +81,14 @@ export function PublicEvent() {
       try {
         setLoading(true);
 
-        // 1. Tenta buscar pelo SLUG (texto)
-        // Removi o 'error: eventError' daqui para sumir com o aviso amarelo, pois já checamos !eventData
+        // 1. Busca evento por SLUG
         let { data: eventData } = await supabase
           .from('events')
           .select('*')
           .eq('slug', slug)
           .single();
 
-        // 2. FALLBACK: Se não achou e o slug parece um número (ex: "3"), tenta buscar pelo ID
+        // 2. Fallback: Busca por ID se slug for numérico
         if (!eventData && !isNaN(Number(slug))) {
           const { data: eventById } = await supabase
             .from('events')
@@ -107,21 +99,20 @@ export function PublicEvent() {
         }
 
         if (!eventData) {
-          console.error("Evento não encontrado ou link inválido");
+          console.error("Evento não encontrado");
           setLoading(false);
           return;
         }
 
         setEvent(eventData);
 
-        // 3. Busca as FOTOS usando o ID do evento encontrado
+        // 3. Busca fotos do evento
         const { data: photosData, error: photosError } = await supabase
           .from('photos')
           .select('*')
           .eq('event_id', eventData.id);
 
         if (photosError) throw photosError;
-
         setPhotos(photosData || []);
 
       } catch (error) {
@@ -134,16 +125,18 @@ export function PublicEvent() {
     loadData();
   }, [slug]);
 
-  // --- CÁLCULOS ---
+  // --- CÁLCULOS DE PREÇO ---
   function calculateTotal() {
     const singlePrice = event?.pricing?.single || event?.price?.single || 15.0;
     const packages = event?.pricing?.packages || [];
+    // Ordena pacotes do maior para o menor
     const sortedPackages = [...packages].sort((a: any, b: any) => b.quantity - a.quantity);
 
     let remainingCount = cart.length;
     let finalTotal = 0;
     let breakdown: string[] = [];
 
+    // Lógica dos pacotes
     for (const pkg of sortedPackages) {
       if (remainingCount >= pkg.quantity) {
         const numPackages = Math.floor(remainingCount / pkg.quantity);
@@ -153,6 +146,7 @@ export function PublicEvent() {
       }
     }
 
+    // Lógica das fotos avulsas (sobras)
     if (remainingCount > 0) {
       finalTotal += remainingCount * Number(singlePrice);
       breakdown.push(`${remainingCount}x Fotos Avulsas`);
@@ -175,12 +169,6 @@ export function PublicEvent() {
     setCart(cart.filter((item) => item.id !== photoId));
   }
 
-  function openCheckoutForm() {
-    if (cart.length === 0) return;
-    setIsCartOpen(false);
-    setIsCheckoutModalOpen(true);
-  }
-
   function handleSendToWhatsapp(e: React.FormEvent) {
     e.preventDefault();
 
@@ -194,7 +182,7 @@ export function PublicEvent() {
 
     const pixKey = '42988850626';
     const pixName = 'Gabriel Golom Novaki';
-    const myPhoneNumber = '554288850626';
+    const myPhoneNumber = '5542988332968';
 
     let message = `*🤠 NOVO PEDIDO - FOCO CAMPEIRO*\n`;
     message += `-----------------------------------\n`;
@@ -229,7 +217,7 @@ export function PublicEvent() {
   if (loading) return <div className="public-event-container loading-msg">Carregando...</div>;
   if (!event) return <div className="public-event-container loading-msg">Evento não encontrado.</div>;
 
-  const { total, breakdown, singlePrice } = calculateTotal();
+  const { singlePrice } = calculateTotal();
   const hasPackages = event.pricing?.packages?.length > 0;
 
   return (
@@ -243,10 +231,7 @@ export function PublicEvent() {
         </div>
       )}
 
-
-
-
-      {/* MODAL DE CHECKOUT */}
+      {/* MODAL DE CHECKOUT (FORMULÁRIO) */}
       {isCheckoutModalOpen && (
         <div className="modal-overlay">
           <div className="checkout-modal">
@@ -294,7 +279,7 @@ export function PublicEvent() {
 
               <div className="checkout-total-box">
                 <span>Total a Pagar:</span>
-                <strong>R$ {total.toFixed(2)}</strong>
+                <strong>R$ {calculateTotal().total.toFixed(2)}</strong>
               </div>
 
               <button type="submit" className="btn-send-whatsapp">
@@ -305,128 +290,112 @@ export function PublicEvent() {
         </div>
       )}
 
-      {/* CONTEÚDO PRINCIPAL */}
-      <div>
-        <header className="pe-header">
-          <div className="brand-wrapper">
-            <Logo />
-            <span className="brand-text">FOCO CAMPEIRO</span>
-          </div>
-          <button className="header-btn-cart" onClick={() => setIsCartOpen(true)}>
-            <ShoppingCart size={20} /> Carrinho ({cart.length})
-          </button>
-        </header>
+      {/* HEADER PRINCIPAL */}
+      <header className="pe-header">
+        <div className="brand-wrapper">
+          <Logo />
+          <span className="brand-text">FOCO CAMPEIRO</span>
+        </div>
+        <button className="header-btn-cart" onClick={() => setIsCartOpen(true)}>
+          <ShoppingCart size={20} /> Carrinho ({cart.length})
+        </button>
+      </header>
 
-        {selectedPhoto && (
-          <div className="lightbox-overlay" onClick={() => setSelectedPhoto(null)}>
-            <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
-              <button className="lightbox-close" onClick={() => setSelectedPhoto(null)}>
-                <X size={32} weight="bold" />
+      {/* LIGHTBOX (VISUALIZAÇÃO DE FOTO GRANDE) */}
+      {selectedPhoto && (
+        <div className="lightbox-overlay" onClick={() => setSelectedPhoto(null)}>
+          <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
+            <button className="lightbox-close" onClick={() => setSelectedPhoto(null)}>
+              <X size={32} weight="bold" />
+            </button>
+            <img src={selectedPhoto.image_url} alt="Visualização" className="lightbox-img" onContextMenu={(e) => e.preventDefault()} />
+            <div className="lightbox-actions">
+              <span style={{ color: '#ccc', fontWeight: 'bold' }}>
+                {selectedPhoto.original_name || `Foto #${selectedPhoto.id}`}
+              </span>
+              <button className="btn-add-large" onClick={() => addToCart(selectedPhoto)}>
+                <ShoppingCart size={20} weight="fill" /> Adicionar ao Carrinho
               </button>
-              <img src={selectedPhoto.image_url} alt="Visualização" className="lightbox-img" onContextMenu={(e) => e.preventDefault()} />
-              <div className="lightbox-actions">
-                <span style={{ color: '#ccc', fontWeight: 'bold' }}>
-                  {selectedPhoto.original_name || `Foto #${selectedPhoto.id}`}
-                </span>
-                <button className="btn-add-large" onClick={() => addToCart(selectedPhoto)}>
-                  <ShoppingCart size={20} weight="fill" /> Adicionar ao Carrinho
-                </button>
-              </div>
             </div>
           </div>
-        )}
-
-        {isCartOpen && (
-          <>
-            <div className="cart-overlay" onClick={() => setIsCartOpen(false)} />
-            <div className="cart-sidebar">
-              <div className="cart-header">
-                <h2>Seu Carrinho</h2>
-                <button className="btn-close" onClick={() => setIsCartOpen(false)}>
-                  <X size={24} weight="bold" />
-                </button>
-              </div>
-
-              <div className="cart-items-list">
-                {cart.length === 0 ? (
-                  <p className="cart-empty-msg">Seu carrinho está vazio.</p>
-                ) : (
-                  cart.map((item) => (
-                    <div key={item.id} className="cart-item">
-                      <img src={item.image_url} alt="Thumb" />
-                      <div className="cart-item-info">
-                        <p className="cart-item-name">{item.original_name || `Foto #${item.id}`}</p>
-                        <p className="item-price">R$ {Number(singlePrice).toFixed(2)}</p>
-                      </div>
-                      <button className="btn-remove" onClick={() => removeFromCart(item.id)}>
-                        <Trash size={18} color="#ff4444" />
-                      </button>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              <div className="cart-footer">
-                {cart.length > 0 && (
-                  <div className="cart-resume">
-                    {breakdown.map((line, index) => (
-                      <div key={index} className="cart-resume-row">
-                        <span>{line}</span>
-                        {line.includes('Pacote') && <span className="discount-badge">Promo</span>}
-                      </div>
-                    ))}
-                    <div className="cart-total-final">
-                      <span>Total:</span>
-                      <span>R$ {total.toFixed(2)}</span>
-                    </div>
-                  </div>
-                )}
-
-                <button className="btn-checkout" onClick={openCheckoutForm}>
-                  <WhatsappLogo size={24} weight="fill" />
-                  Finalizar Compra
-                </button>
-              </div>
-            </div>
-          </>
-        )}
-
-        <div className="pe-hero" style={{ backgroundImage: event.image_url ? `linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.9)), url(${event.image_url})` : 'none' }}>
-          <h1>{event.name}</h1>
-          <div className="pe-hero-meta">
-            <span><Calendar size={18} /> {new Date(event.date + 'T12:00:00').toLocaleDateString('pt-BR')}</span>
-            <span><MapPin size={18} /> {event.location}</span>
-          </div>
-          <p className="price-highlight">
-            Fotos disponíveis por <strong>R$ {Number(singlePrice).toFixed(2)}</strong> cada
-            {hasPackages && <span style={{ display: 'block', fontSize: '0.9rem', color: '#4CAF50', marginTop: 5, fontWeight: 'bold' }}>🔥 Adicione mais fotos para ativar os pacotes promocionais!</span>}
-          </p>
         </div>
+      )}
 
-        <div className="back-nav">
-          <Link to="/galeria" className="back-link">
-            <ArrowLeft size={20} /> Voltar para lista de eventos
-          </Link>
+      {/* HERO (CAPA DO EVENTO) */}
+      <div className="pe-hero" style={{ backgroundImage: event.image_url ? `linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.9)), url(${event.image_url})` : 'none' }}>
+        <h1>{event.name}</h1>
+        <div className="pe-hero-meta">
+          <span><Calendar size={18} /> {new Date(event.date + 'T12:00:00').toLocaleDateString('pt-BR')}</span>
+          <span><MapPin size={18} /> {event.location}</span>
         </div>
-
-        <div className="pe-grid">
-          {photos.map((photo) => {
-            const isAdded = cart.find((i) => i.id === photo.id);
-            return (
-              <div key={photo.id} className="photo-card-wrapper">
-                <img src={photo.image_url} alt="Foto" className="photo-card-img" loading="lazy" onClick={() => setSelectedPhoto(photo)} style={{ cursor: 'pointer' }} onContextMenu={(e) => e.preventDefault()} />
-                <span className="photo-name-tag">{photo.original_name || `ID ${photo.id}`}</span>
-                <div onClick={() => setSelectedPhoto(photo)} style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', pointerEvents: 'none', opacity: 0.5 }}>
-                  <MagnifyingGlassPlus size={32} color="white" />
-                </div>
-                <button className={`btn-add-cart ${isAdded ? 'added' : 'default'}`} onClick={(e) => { e.stopPropagation(); addToCart(photo); }}>
-                  <ShoppingCart size={18} weight="bold" />
-                </button>
-              </div>
-            );
-          })}
-        </div>
+        <p className="price-highlight">
+          Fotos disponíveis por <strong>R$ {Number(singlePrice).toFixed(2)}</strong> cada
+          {hasPackages && <span style={{ display: 'block', fontSize: '0.9rem', color: '#4CAF50', marginTop: 5, fontWeight: 'bold' }}>🔥 Adicione mais fotos para ativar os pacotes promocionais!</span>}
+        </p>
       </div>
+
+      <div className="back-nav">
+        <Link to="/galeria" className="back-link">
+          <ArrowLeft size={20} /> Voltar para lista de eventos
+        </Link>
+      </div>
+
+      {/* GRID DE FOTOS */}
+      <div className="pe-grid">
+        {photos.map((photo) => {
+          const isAdded = cart.find((i) => i.id === photo.id);
+          return (
+            <div key={photo.id} className="photo-card-wrapper">
+              <img
+                src={photo.image_url}
+                alt="Foto"
+                className="photo-card-img"
+                loading="lazy"
+                onClick={() => setSelectedPhoto(photo)}
+                style={{ cursor: 'pointer' }}
+                onContextMenu={(e) => e.preventDefault()}
+              />
+              <span className="photo-name-tag">{photo.original_name || `ID ${photo.id}`}</span>
+
+              <div onClick={() => setSelectedPhoto(photo)} style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', pointerEvents: 'none', opacity: 0.5 }}>
+                <MagnifyingGlassPlus size={32} color="white" />
+              </div>
+
+              <button
+                className={`btn-add-cart ${isAdded ? 'added' : 'default'}`}
+                onClick={(e) => { e.stopPropagation(); addToCart(photo); }}
+              >
+                <ShoppingCart size={18} weight="bold" />
+              </button>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ⭐⭐ NOVO COMPONENTE DO CARRINHO ⭐⭐
+        Aqui ele substitui todo aquele código antigo.
+      */}
+
+{event && (
+    <CartStore 
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        
+        cartItems={cart}
+        
+        /* CORREÇÃO 1: Usar o nome da função que você criou lá em cima */
+        onRemoveItem={removeFromCart} 
+        
+        /* CORREÇÃO 2: Passar o objeto eventData completo */
+        eventData={{
+            name: event.name,
+            /* ATENÇÃO: Verifique se no seu banco a coluna chama 'whatsapp' ou 'whatsapp_number' */
+            whatsapp: event.whatsapp || event.whatsapp_number, 
+            pricing: event.pricing
+        }}
+    />
+)}
+
     </div>
   );
 }

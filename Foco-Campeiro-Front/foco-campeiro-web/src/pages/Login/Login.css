@@ -1,156 +1,207 @@
 /* src/pages/Login/Login.css */
 
-/* O Container ocupa a tela toda */
+/* --- 1. FUNDO CINEMÁTICO --- */
 .login-container {
   height: 100vh;
   width: 100vw;
-  background-color: #000000;
-  /* Dica: Se tiver uma foto de fundo, coloque aqui com url() e overlay */
-  background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1534078235003-752763363303?q=80&w=2070&auto=format&fit=crop'); 
+  background-color: #050505;
+  
+  /* Imagem de fundo temática (Madeira escura ou Couro ou Desfoque) */
+  /* Usei uma textura escura de alta qualidade aqui */
+  background-image: 
+    linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0.9)),
+    url('https://wallpapers.com/images/featured/plano-de-fundo-de-rodeio-xnopymq62mw4782c.jpg');
+  
   background-size: cover;
   background-position: center;
   
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  overflow: hidden;
 }
 
-/* O Card centralizado */
+/* Efeito de "Vinheta" para escurecer as bordas */
+.login-container::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(circle, transparent 40%, #000 100%);
+  pointer-events: none;
+}
+
+/* --- 2. O CARTÃO DE VIDRO (GLASSMORPHISM) --- */
 .login-card {
-  width: 100%;
+  position: relative;
+  z-index: 10;
+  width: 90%;
   max-width: 400px;
-  padding: 40px;
-  /* Efeito de vidro (opcional) ou fundo sólido */
-  background-color: rgba(18, 18, 18, 0.95); 
-  border: 1px solid #333;
+  padding: 40px 30px;
+  
+  /* O Segredo do Vidro: */
+  background: rgba(20, 20, 20, 0.75); /* Fundo semi-transparente */
+  backdrop-filter: blur(12px);         /* Desfoque do que está atrás */
+  -webkit-backdrop-filter: blur(12px);
+  
+  border: 1px solid rgba(255, 255, 255, 0.08); /* Borda sutil */
+  border-top: 1px solid rgba(255, 255, 255, 0.15); /* Luz vindo de cima */
+  
   border-radius: 16px;
   text-align: center;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5); /* Sombra profunda */
 }
 
-/* Logo e Títulos */
+/* --- 3. TIPOGRAFIA --- */
 .logo-area {
-  margin-bottom: 30px;
-  color: #DAA520; /* Dourado */
+  margin-bottom: 25px;
+  /* Animação suave no logo */
+  transition: transform 0.3s;
 }
-.logo-img {
-  width: 180px;
-  height: auto;
-}
-.logo-icon {
-  font-size: 48px;
-}
-
-.brand-name {
-  font-family: 'Times New Roman', serif; /* Ou importar a fonte Rye */
-  font-size: 24px;
-  font-weight: bold;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  display: block;
-  margin-top: 5px;
+.logo-area:hover {
+  transform: scale(1.05);
 }
 
 .login-title {
-  color: #FFF;
+  color: #E0E0E0;
   margin-bottom: 30px;
-  font-size: 18px;
-  font-weight: normal;
+  font-family: 'Inter', sans-serif; /* Fonte limpa */
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  opacity: 0.8;
+  text-transform: uppercase;
 }
 
-/* Formulário e Inputs */
+/* --- 4. CAMPOS DE INPUT (MODERNOS) --- */
 .form-group {
   margin-bottom: 20px;
-  text-align: left;
 }
 
 .input-wrapper {
   position: relative;
-  display: flex;
-  align-items: center;
+  width: 100%;
+  display: flex;         /* Garante alinhamento */
+  align-items: center;   /* Centraliza verticalmente */
 }
 
 .input-icon {
   position: absolute;
   left: 15px;
-  color: #A0A0A0;
-  font-size: 20px;
-  transition: color 0.3s;
+  /* Removemos o top/transform aqui para usar flexbox, mas como é absolute, mantemos para segurança */
+  top: 50%;
+  transform: translateY(-50%);
+  
+  color: #888;
+  font-size: 22px;
+  pointer-events: none;
+  z-index: 10; /* Ícone SEMPRE no topo visualmente */
+  transition: color 0.3s ease;
 }
 
 .custom-input {
   width: 100%;
-  padding: 14px 14px 14px 45px; /* Espaço para o ícone */
-  background: transparent;
-  border: 1px solid #555; /* Borda sutil */
+  /* box-sizing é CRUCIAL para o padding não estourar a largura */
+  box-sizing: border-box; 
+  
+  /* --- AQUI ESTÁ A MUDANÇA --- */
+  /* Usamos !important para garantir que NADA sobrescreva esse espaço */
+  padding-left: 60px !important; 
+  padding-right: 15px !important;
+  padding-top: 16px;
+  padding-bottom: 16px;
+  
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 8px;
   color: #FFF;
-  font-size: 16px;
+  font-size: 15px;
   outline: none;
-  transition: all 0.3s;
+  
+  /* Z-index menor que o ícone, mas maior que o fundo */
+  z-index: 5; 
+  transition: all 0.3s ease;
 }
 
-/* O Efeito "Foco Campeiro" */
+/* Placeholder cor suave */
+.custom-input::placeholder {
+  color: #666;
+}
+
+/* ESTADO DE FOCO */
 .custom-input:focus {
-  border-color: #DAA520; /* Borda Dourada */
-  box-shadow: 0 0 8px rgba(218, 165, 32, 0.3); /* Brilho Dourado */
+  background-color: rgba(0, 0, 0, 0.6);
+  border-color: #DAA520; 
+  box-shadow: 0 0 0 2px rgba(218, 165, 32, 0.15); 
 }
 
-.custom-input:focus + .input-icon, 
-.input-wrapper:focus-within .input-icon {
-  color: #DAA520; /* Ícone Dourado também */
+.custom-input:focus + .input-icon {
+  color: #DAA520; 
 }
 
-/* Botão */
+/* --- 5. BOTÃO PRINCIPAL --- */
 .btn-login {
   width: 100%;
-  padding: 14px;
-  background-color: #DAA520;
-  color: #000;
-  font-weight: bold;
-  font-size: 16px;
+  margin-top: 10px;
+  padding: 16px;
+  
+  background: linear-gradient(45deg, #DAA520, #FFD700); /* Degradê Dourado */
+  color: #111; /* Texto preto contrasta melhor com dourado */
+  
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: filter 0.2s;
-  margin-top: 10px;
+  
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(218, 165, 32, 0.3);
 }
 
 .btn-login:hover {
+  transform: translateY(-2px); /* Efeito de elevação */
+  box-shadow: 0 6px 20px rgba(218, 165, 32, 0.5); /* Brilho aumenta */
   filter: brightness(1.1);
 }
 
-.btn-login:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
+.btn-login:active {
+  transform: translateY(1px);
 }
 
-/* Links do Rodapé */
+.btn-login:disabled {
+  opacity: 0.6;
+  cursor: wait;
+  transform: none;
+}
+
+/* --- 6. LINKS E RODAPÉ --- */
 .login-footer {
-  margin-top: 25px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  margin-top: 30px;
   font-size: 14px;
 }
 
 .link-subtle {
-  color: #A0A0A0;
+  color: #888;
   text-decoration: none;
+  transition: color 0.2s;
+  font-size: 13px;
 }
 
-.link-highlight {
+.link-subtle:hover {
   color: #DAA520;
-  font-weight: bold;
-  text-decoration: none;
-}
-
-.link-highlight:hover {
   text-decoration: underline;
 }
 
+/* Mensagem de Erro */
 .error-msg {
-  color: #ff4d4d;
-  font-size: 14px;
+  background: rgba(255, 77, 77, 0.1);
+  color: #ff6b6b;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 13px;
   margin-bottom: 15px;
+  border: 1px solid rgba(255, 77, 77, 0.2);
 }

@@ -68,17 +68,17 @@ function calculateBestPrice(count: number, pricing: EventPricing) {
   return { total, details, fullPrice };
 }
 
-export function CartStore({ 
-  isOpen, 
-  onClose, 
-  cartItems, 
-  onRemoveItem, 
+export function CartStore({
+  isOpen,
+  onClose,
+  cartItems,
+  onRemoveItem,
   eventData // Recebendo os dados do evento
 }: CartStoreProps) {
 
   // Executa o cálculo toda vez que os itens mudam
   const { total, details, fullPrice } = calculateBestPrice(
-    cartItems.length, 
+    cartItems.length,
     eventData?.pricing
   );
 
@@ -92,29 +92,43 @@ export function CartStore({
     }
 
     const photoList = cartItems.map(item => item.original_name || `ID:${item.id}`).join(', ');
+
+    // --- MENSAGEM ESTILO "EXTRATO" (SEM EMOJIS) ---
+    // Usamos linhas, letras maiúsculas e negrito (*) para dar estrutura.
     
-    // Monta o texto bonitinho
     const message = 
-      `*Olá! Gostaria de finalizar meu pedido no Foco Campeiro.* 🤠%0A%0A` +
-      `📸 *Evento:* ${eventData.name}%0A` +
-      `🖼 *Fotos Selecionadas (${cartItems.length}):* ${photoList}%0A%0A` +
-      `🎁 *Pacotes Aplicados:* ${details.join(' + ')}%0A` +
-      `💰 *TOTAL A PAGAR:* R$ ${total.toFixed(2)}%0A` +
-      `${economy > 0 ? `(Economizei R$ ${economy.toFixed(2)} 🎉)%0A` : ''}` +
-      `%0AAguardo o Pix!`;
+      `*PEDIDO DE FOTOS - FOCO CAMPEIRO*\n` +
+      `________________________________\n\n` +
+      
+      `*DETALHES DO EVENTO*\n` +
+      `Nome: ${eventData.name}\n\n` +
+      
+      `*ITENS SELECIONADOS (${cartItems.length})*\n` +
+      `${photoList}\n\n` +
+      
+      `*RESUMO FINANCEIRO*\n` +
+      `Regra Aplicada: ${details.join(' + ')}\n` +
+      `*VALOR FINAL: R$ ${total.toFixed(2)}*\n` +
+      `${economy > 0 ? `(Desconto aplicado de R$ ${economy.toFixed(2)})\n` : ''}` +
+      
+      `________________________________\n\n` +
+      `Olá! Gostaria de finalizar a compra destas fotos.\n` +
+      `Fico no aguardo da chave PIX!`;
 
-    window.open(`https://wa.me/55${eventData.whatsapp}?text=${message}`, '_blank');
+    // A função encodeURIComponent é OBRIGATÓRIA para acentos (á, é, ã) e quebras de linha
+    const url = `https://api.whatsapp.com/send?phone=55${eventData.whatsapp}&text=${encodeURIComponent(message)}`;
+    
+    window.open(url, '_blank');
   }
-
   return (
     <>
-      <div 
-        className={`cart-overlay ${isOpen ? 'open' : ''}`} 
-        onClick={onClose} 
+      <div
+        className={`cart-overlay ${isOpen ? 'open' : ''}`}
+        onClick={onClose}
       />
 
       <aside className={`cart-store ${isOpen ? 'open' : ''}`}>
-        
+
         <div className="cart-header">
           <h2 className="cart-title">Seu Carrinho</h2>
           <button className="close-btn" onClick={onClose}>
@@ -130,12 +144,12 @@ export function CartStore({
           ) : (
             cartItems.map((item) => (
               <div key={item.id} className="cart-item">
-                <img 
-                  src={item.image_url || item.url} 
-                  alt="Foto" 
-                  className="cart-item-img" 
+                <img
+                  src={item.image_url || item.url}
+                  alt="Foto"
+                  className="cart-item-img"
                 />
-                
+
                 <div className="cart-item-info">
                   <span className="item-name">
                     {item.original_name || `Foto #${item.id}`}
@@ -145,7 +159,7 @@ export function CartStore({
                     Unit: R$ {eventData?.pricing?.single?.toFixed(2)}
                   </span>
                 </div>
-                
+
                 <button className="remove-btn" onClick={() => onRemoveItem(item.id)}>
                   <Trash size={20} />
                 </button>
@@ -156,29 +170,29 @@ export function CartStore({
 
         {cartItems.length > 0 && (
           <div className="cart-footer">
-            
+
             {/* SEÇÃO DE RESUMO DO CÁLCULO */}
             <div className="calculation-summary" style={{ marginBottom: 15 }}>
               {economy > 0 && (
                 <div className="discount-badge" style={{ fontSize: '0.85rem', color: '#888', marginBottom: 5 }}>
-                   De <span style={{ textDecoration: 'line-through' }}>R$ {fullPrice.toFixed(2)}</span> por:
+                  De <span style={{ textDecoration: 'line-through' }}>R$ {fullPrice.toFixed(2)}</span> por:
                 </div>
               )}
-              
+
               <div className="cart-total">
                 <span>Total Final</span>
-                <span style={{color: '#00ff7f', fontSize: '1.5rem', fontWeight: 'bold'}}>
+                <span style={{ color: '#00ff7f', fontSize: '1.5rem', fontWeight: 'bold' }}>
                   R$ {total.toFixed(2)}
                 </span>
               </div>
 
               {/* Mostra quais pacotes entraram */}
               <div style={{ fontSize: '0.75rem', color: '#DAA520', marginTop: 5, display: 'flex', alignItems: 'center', gap: 5 }}>
-                 <Tag size={14} /> 
-                 {details.join(' + ')}
+                <Tag size={14} />
+                {details.join(' + ')}
               </div>
             </div>
-            
+
             <button className="btn-finalize" onClick={handleFinalizeOrder}>
               <WhatsappLogo size={24} weight="fill" />
               Enviar Pedido no WhatsApp

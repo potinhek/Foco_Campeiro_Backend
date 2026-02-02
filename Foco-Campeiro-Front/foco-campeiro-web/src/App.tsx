@@ -6,34 +6,37 @@ import { EventDetails } from './pages/EventDetails/EventDetails';
 import { PublicEvent } from './pages/PublicEvent/PublicEvent';
 import { PublicGallery } from './pages/PublicGallery/PublicGallery';
 import { MyOrders } from './pages/Dashboard/MyOrders/MyOrders';
+import { PrivateRouter } from './components/PrivateRouter/PrivateRouter'; // Importação correta
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* ROTA INICIAL */}
+        {/* --- ROTAS PÚBLICAS (Qualquer um acessa) --- */}
         <Route path="/" element={<Navigate to="/galeria" />} />
-
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* ÁREA DO FOTÓGRAFO (ADMIN) */}
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/event/:slug" element={<EventDetails />} />
-        {/* --- ÁREA DO CLIENTE --- */}
-
-        {/* 1. Capa do site */}
+        {/* ÁREA DO CLIENTE (PÚBLICA) */}
         <Route path="/galeria" element={<PublicGallery />} />
-
-        {/* 2. Vitrine do Evento - AQUI ESTAVA O ERRO */}
-        {/* Mudamos de :id para :slug para bater com o código da página PublicEvent */}
         <Route path="/galeria/:slug" element={<PublicEvent />} />
-
-        {/* (Opcional) Mantendo compatibilidade antiga */}
+        {/* Rota legada para compatibilidade */}
         <Route path="/loja/:slug" element={<PublicEvent />} />
 
-        {/* 3. Minhas Movimentações */}
-        <Route path="/dashboard/movimentacao" element={<MyOrders />} />
+
+        {/* --- ÁREA DO FOTÓGRAFO (PROTEGIDA 🔒) --- */}
+        {/* Tudo aqui dentro só abre se tiver login no Supabase */}
+        <Route element={<PrivateRouter />}>
+          
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard/movimentacao" element={<MyOrders />} />
+          
+          {/* CUIDADO AQUI: /event/:slug é a edição do fotógrafo */}
+          {/* Enquanto /galeria/:slug é a vitrine pública */}
+          <Route path="/event/:slug" element={<EventDetails />} />
+          
+        </Route>
+
       </Routes>
     </BrowserRouter>
   );

@@ -236,6 +236,7 @@ export function PublicEvent() {
         cartItems={cart}
         onRemoveItem={removeFromCart}
         eventData={{
+          id: event.id, 
           name: event.name,
           whatsapp: '42988332968', 
           pricing: event.pricing

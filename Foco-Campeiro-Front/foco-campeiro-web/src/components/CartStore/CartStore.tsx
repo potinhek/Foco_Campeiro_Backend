@@ -1,5 +1,10 @@
+import { useState } from 'react';
 import { X, Trash, WhatsappLogo, Tag } from '@phosphor-icons/react';
 import './CartStore.css';
+// Verifique se esse caminho está certo
+import { CheckoutModal, type CustomerData } from '../CheckoutModal/CheckoutModal';
+// Verifique se esse caminho está certo
+import { supabase } from '../../config/supabase';
 
 // --- INTERFACES ---
 
@@ -14,8 +19,9 @@ interface EventPricing {
 }
 
 interface EventData {
+  id?: string | number; 
   name: string;
-  whatsapp: string; // O número do fotógrafo
+  whatsapp: string;
   pricing: EventPricing;
 }
 
@@ -31,27 +37,24 @@ interface CartStoreProps {
   onClose: () => void;
   cartItems: CartItem[];
   onRemoveItem: (id: number) => void;
-  eventData: EventData; // <--- ADICIONAMOS ISSO AQUI PARA LER AS REGRAS
+  eventData: EventData;
 }
 
-// --- LÓGICA DE CÁLCULO (ALGORITMO) ---
+// --- LÓGICA DE CÁLCULO ---
 function calculateBestPrice(count: number, pricing: EventPricing) {
   if (!pricing) return { total: 0, details: [], fullPrice: 0 };
 
   const singlePrice = pricing.single || 0;
-  const fullPrice = count * singlePrice; // Preço sem desconto ("De R$...")
+  const fullPrice = count * singlePrice;
 
   let remaining = count;
   let total = 0;
   let details: string[] = [];
 
-  // 1. Garante que existe array e ordena do MAIOR pacote para o MENOR
   const sortedPackages = (pricing.packages || [])
     .sort((a, b) => b.quantity - a.quantity);
 
-  // 2. Aplica os pacotes
   for (const pkg of sortedPackages) {
-    // Enquanto couber este pacote na quantidade restante...
     while (remaining >= pkg.quantity) {
       total += pkg.price;
       remaining -= pkg.quantity;
@@ -59,7 +62,6 @@ function calculateBestPrice(count: number, pricing: EventPricing) {
     }
   }
 
-  // 3. O que sobrou vira avulso
   if (remaining > 0) {
     total += remaining * singlePrice;
     details.push(`${remaining}x Avulsas`);
@@ -73,10 +75,12 @@ export function CartStore({
   onClose,
   cartItems,
   onRemoveItem,
-  eventData // Recebendo os dados do evento
+  eventData
 }: CartStoreProps) {
 
-  // Executa o cálculo toda vez que os itens mudam
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const { total, details, fullPrice } = calculateBestPrice(
     cartItems.length,
     eventData?.pricing
@@ -84,42 +88,99 @@ export function CartStore({
 
   const economy = fullPrice - total;
 
-  // Função que monta a mensagem e abre o WhatsApp
-  function handleFinalizeOrder() {
+  // --- FUNÇÃO CORRIGIDA ---
+  async function handleProcessOrder(customer: CustomerData) {
+    // CORREÇÃO 1: Usar 'eventData' direto, sem 'props.'
     if (!eventData?.whatsapp) {
-      alert("Erro: Número de WhatsApp não configurado neste evento.");
+      alert("Erro: WhatsApp não configurado.");
+      return;
+    }
+    
+    // Verificação de segurança para o Banco de Dados
+    if (!eventData.id) {
+      alert("Erro: ID do evento não encontrado. Não é possível salvar no banco.");
       return;
     }
 
-    const photoList = cartItems.map(item => item.original_name || `ID:${item.id}`).join(', ');
+    setIsSubmitting(true);
 
-    // --- MENSAGEM ESTILO "EXTRATO" (SEM EMOJIS) ---
-    // Usamos linhas, letras maiúsculas e negrito (*) para dar estrutura.
-    
-    const message = 
-      `*PEDIDO DE FOTOS - FOCO CAMPEIRO*\n` +
-      `________________________________\n\n` +
-      
-      `*DETALHES DO EVENTO*\n` +
-      `Nome: ${eventData.name}\n\n` +
-      
-      `*ITENS SELECIONADOS (${cartItems.length})*\n` +
-      `${photoList}\n\n` +
-      
-      `*RESUMO FINANCEIRO*\n` +
-      `Regra Aplicada: ${details.join(' + ')}\n` +
-      `*VALOR FINAL: R$ ${total.toFixed(2)}*\n` +
-      `${economy > 0 ? `(Desconto aplicado de R$ ${economy.toFixed(2)})\n` : ''}` +
-      
-      `________________________________\n\n` +
-      `Olá! Gostaria de finalizar a compra destas fotos.\n` +
-      `Fico no aguardo da chave PIX!`;
+    try {
+      // --- PASSO A: Criar Order ---
+      const { data: orderData, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          event_id: eventData.id, // CORREÇÃO: removido 'props.'
+          customer_name: customer.name,
+          customer_phone: customer.phone,
+          customer_email: customer.email,
+          customer_cpf: customer.cpf,
+          total_amount: total,
+          status: 'pending',
+          payment_method: 'pix',
+          pricing_details: details.join(' + ')
+        })
+        .select()
+        .single();
 
-    // A função encodeURIComponent é OBRIGATÓRIA para acentos (á, é, ã) e quebras de linha
-    const url = `https://api.whatsapp.com/send?phone=55${eventData.whatsapp}&text=${encodeURIComponent(message)}`;
-    
-    window.open(url, '_blank');
+      if (orderError) throw orderError;
+
+      const orderId = orderData.id;
+
+      // --- PASSO B: Salvar Itens ---
+      // CORREÇÃO: Usar 'cartItems' direto, sem 'props.'
+      const itemsToInsert = cartItems.map(item => ({
+        order_id: orderId,
+        photo_id: item.id,
+        photo_name: item.original_name,
+        price_at_purchase: eventData.pricing.single
+      }));
+
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(itemsToInsert);
+
+      if (itemsError) throw itemsError;
+
+      // --- SUCESSO ---
+      console.log("Pedido salvo com sucesso ID:", orderId);
+
+      const photoList = cartItems
+        .map(item => item.original_name || `ID:${item.id}`)
+        .join(', ');
+
+      const message = 
+        `*PEDIDO #${orderId} - FOCO CAMPEIRO*\n` +
+        `________________________________\n\n` +
+        `*CLIENTE*\n` +
+        `👤 Nome: ${customer.name}\n` +
+        `📱 Tel: ${customer.phone}\n` +
+        `${customer.cpf ? `📄 CPF: ${customer.cpf}\n` : ''}` +
+        `\n` +
+        `*DETALHES DO EVENTO*\n` +
+        `Evento: ${eventData.name}\n\n` +
+        `*ITENS SELECIONADOS (${cartItems.length})*\n` +
+        `${photoList}\n\n` +
+        `*RESUMO FINANCEIRO*\n` +
+        `Regra: ${details.join(' + ')}\n` +
+        `*VALOR FINAL: R$ ${total.toFixed(2)}*\n` +
+        `________________________________\n\n` +
+        `Olá! Meu pedido nº ${orderId} foi registrado. Segue os dados para pagamento!`;
+
+      const url = `https://api.whatsapp.com/send?phone=55${eventData.whatsapp}&text=${encodeURIComponent(message)}`;
+      window.open(url, '_blank');
+
+      setIsCheckoutOpen(false);
+      // onClose(); // Descomente se quiser fechar o carrinho ao finalizar
+
+    } catch (error: any) { // Adicione o 'any' ou o tipo correto do erro
+      console.error("Erro detalhado:", error);
+      // Alteramos aqui para mostrar a mensagem do banco na tela
+      alert(`Erro no banco de dados: ${error.message || JSON.stringify(error)}`);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
+
   return (
     <>
       <div
@@ -154,7 +215,6 @@ export function CartStore({
                   <span className="item-name">
                     {item.original_name || `Foto #${item.id}`}
                   </span>
-                  {/* Preço unitário apenas informativo */}
                   <span className="item-price">
                     Unit: R$ {eventData?.pricing?.single?.toFixed(2)}
                   </span>
@@ -170,8 +230,6 @@ export function CartStore({
 
         {cartItems.length > 0 && (
           <div className="cart-footer">
-
-            {/* SEÇÃO DE RESUMO DO CÁLCULO */}
             <div className="calculation-summary" style={{ marginBottom: 15 }}>
               {economy > 0 && (
                 <div className="discount-badge" style={{ fontSize: '0.85rem', color: '#888', marginBottom: 5 }}>
@@ -186,21 +244,29 @@ export function CartStore({
                 </span>
               </div>
 
-              {/* Mostra quais pacotes entraram */}
               <div style={{ fontSize: '0.75rem', color: '#DAA520', marginTop: 5, display: 'flex', alignItems: 'center', gap: 5 }}>
                 <Tag size={14} />
                 {details.join(' + ')}
               </div>
             </div>
 
-            <button className="btn-finalize" onClick={handleFinalizeOrder}>
+            <button 
+              className="btn-finalize" 
+              onClick={() => setIsCheckoutOpen(true)}
+            >
               <WhatsappLogo size={24} weight="fill" />
-              Enviar Pedido no WhatsApp
+              Continuar para Pagamento
             </button>
           </div>
         )}
-
       </aside>
+
+      <CheckoutModal 
+        isOpen={isCheckoutOpen}
+        onClose={() => setIsCheckoutOpen(false)}
+        onConfirm={handleProcessOrder}
+        isSubmitting={isSubmitting}
+      />
     </>
   );
 }

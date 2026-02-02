@@ -5,6 +5,7 @@ import { Dashboard } from './pages/Dashboard/Dashboard';
 import { EventDetails } from './pages/EventDetails/EventDetails';
 import { PublicEvent } from './pages/PublicEvent/PublicEvent';
 import { PublicGallery } from './pages/PublicGallery/PublicGallery';
+import { MyOrders } from './pages/Dashboard/MyOrders/MyOrders';
 
 function App() {
   return (
@@ -31,6 +32,8 @@ function App() {
         {/* (Opcional) Mantendo compatibilidade antiga */}
         <Route path="/loja/:slug" element={<PublicEvent />} />
 
+        {/* 3. Minhas Movimentações */}
+        <Route path="/dashboard/movimentacao" element={<MyOrders />} />
       </Routes>
     </BrowserRouter>
   );

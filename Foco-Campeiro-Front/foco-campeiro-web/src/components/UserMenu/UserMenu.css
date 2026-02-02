@@ -1,7 +1,8 @@
-/* Container principal - Permite que o dropdown se posicione em relação a ele */
+/* Container principal */
 .user-menu-container {
   position: relative;
   display: inline-block;
+  font-family: sans-serif; /* Ou sua fonte padrão */
 }
 
 /* O botão onde clica para abrir */
@@ -11,35 +12,34 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 8px 12px;
+  padding: 6px 12px;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.user-menu-btn:hover {
-  background-color: rgba(255, 255, 255, 0.1); /* Efeito hover suave */
+.user-menu-btn:hover, .user-menu-btn.active {
+  background-color: rgba(255, 255, 255, 0.05);
   border-color: rgba(255, 255, 255, 0.1);
 }
 
-/* Textos do usuário (Admin / Email) */
+/* Textos do usuário */
 .user-info {
   text-align: right;
   display: flex;
   flex-direction: column;
+  line-height: 1.2;
+}
+
+.user-greeting {
+  font-size: 0.75rem;
+  color: #ccc;
 }
 
 .user-name {
-  color: #e5e5e5;
+  color: #fff;
   font-size: 0.9rem;
-  font-weight: 500;
-  margin: 0;
-}
-
-.user-email {
-  color: #888;
-  font-size: 0.75rem;
-  margin: 0;
+  font-weight: bold;
 }
 
 /* Círculo do Avatar */
@@ -47,12 +47,12 @@
   width: 40px;
   height: 40px;
   background-color: #2a2a2a;
-  border: 1px solid #333;
+  border: 2px solid #D4AF37; /* Dourado */
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fbbf24; /* Amarelo da marca */
+  color: #D4AF37;
 }
 
 /* Setinha girando */
@@ -68,7 +68,7 @@
 /* --- O DROPDOWN (Menu flutuante) --- */
 .user-dropdown {
   position: absolute;
-  top: 110%; /* Fica logo abaixo do botão */
+  top: 120%;
   right: 0;
   width: 200px;
   background-color: #1a1a1a;
@@ -76,8 +76,36 @@
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
   padding: 8px;
-  z-index: 1000; /* Garante que fique por cima de tudo */
+  z-index: 1000;
   animation: fadeIn 0.2s ease-out;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* --- NOVO: Item do Menu (Link) --- */
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  color: #e1e1e6;
+  text-decoration: none; /* Tira sublinhado do link */
+  font-size: 0.9rem;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.menu-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #D4AF37; /* Fica dourado no hover */
+}
+
+/* Linha divisória */
+.menu-divider {
+  height: 1px;
+  background-color: #333;
+  margin: 4px 0;
 }
 
 /* Botão de Sair */
@@ -100,15 +128,15 @@
   background-color: rgba(255, 107, 107, 0.1);
 }
 
-/* Animação suave ao abrir */
+/* Animação suave */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Responsividade: Esconde o texto em telas muito pequenas */
+/* Responsividade */
 @media (max-width: 768px) {
   .user-info {
-    display: none;
+    display: none; /* Esconde nome no celular p/ economizar espaço */
   }
 }

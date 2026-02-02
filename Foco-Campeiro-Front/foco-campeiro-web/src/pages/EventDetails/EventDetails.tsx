@@ -10,7 +10,7 @@ export function EventDetails() {
   const params = useParams();
   // Se existir 'slug' usa ele, se não usa 'id'.
   const eventIdentifier = params.slug || params.id;
-  
+
   const [event, setEvent] = useState<any>(null);
   const [photos, setPhotos] = useState<any[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -19,8 +19,8 @@ export function EventDetails() {
   async function loadData() {
     // Se não tiver nem ID nem Slug, não faz nada
     if (!eventIdentifier) {
-        console.error("Nenhum identificador encontrado na URL");
-        return;
+      console.error("Nenhum identificador encontrado na URL");
+      return;
     }
 
     try {
@@ -33,17 +33,17 @@ export function EventDetails() {
 
       // B. Fallback: Se não achou e parece número, tenta pelo ID
       if (!eventData && !isNaN(Number(eventIdentifier))) {
-         const { data: eventById } = await supabase
-            .from('events')
-            .select('*')
-            .eq('id', eventIdentifier)
-            .single();
-         eventData = eventById;
+        const { data: eventById } = await supabase
+          .from('events')
+          .select('*')
+          .eq('id', eventIdentifier)
+          .single();
+        eventData = eventById;
       }
 
       if (!eventData) {
-         console.error("Evento não encontrado no banco de dados.");
-         return;
+        console.error("Evento não encontrado no banco de dados.");
+        return;
       }
 
       setEvent(eventData);
@@ -109,7 +109,7 @@ export function EventDetails() {
 
   // 3. FUNÇÃO DE UPLOAD
   async function handleUpload(files: FileList | null) {
-    if (!files || !event) return; 
+    if (!files || !event) return;
     setUploading(true);
 
     try {
@@ -144,28 +144,64 @@ export function EventDetails() {
     }
   }
 
-  async function handleDeletePhoto(photoId: number) {
-    if (!confirm("Tem certeza que quer apagar essa foto?")) return;
+  async function handleDeletePhoto(photoId: number, imageUrl: string) {
+    
+    const confirmDelete = window.confirm("Tem certeza que quer apagar essa foto permanentemente?");
+    if (!confirmDelete) return;
+
     try {
-      const { error } = await supabase.from('photos').delete().eq('id', photoId);
-      if (error) throw error;
-      loadData();
+      // --- PASSO 1: Apagar o arquivo físico no Storage ---
+      
+      // A URL vem inteira (ex: https://.../event-photos/arquivo.jpg)
+      // Precisamos pegar só o final: "arquivo.jpg"
+      // O split quebra a URL onde aparece o nome do bucket
+      const path = imageUrl.split('/event-photos/')[1];
+
+      if (path) {
+        // O comando .remove espera uma LISTA de caminhos
+        const { error: storageError } = await supabase.storage
+          .from('event-photos') // <--- CONFIRA SE O NOME DO BUCKET É ESSE MESMO
+          .remove([path]);
+        
+        if (storageError) {
+          console.warn("Aviso: Erro ao apagar do storage (talvez já não exista), seguindo para o banco...", storageError);
+        } else {
+          console.log("Arquivo apagado do Storage com sucesso!");
+        }
+      }
+
+      // --- PASSO 2: Apagar a linha no Banco de Dados ---
+      const { error: dbError } = await supabase
+        .from('photos')
+        .delete()
+        .eq('id', photoId);
+
+      if (dbError) throw dbError;
+
+      // --- PASSO 3: Atualizar a Tela ---
+      // Removemos da lista visualmente para não precisar recarregar tudo
+      setPhotos(currentPhotos => currentPhotos.filter(photo => photo.id !== photoId));
+      
+      // Opcional: Feedback visual
+      // alert("Foto excluída!"); 
+
     } catch (error) {
-      alert("Erro ao apagar foto");
+      console.error("Erro fatal ao excluir:", error);
+      alert("Houve um erro ao tentar excluir a foto.");
     }
   }
 
   // --- SE ESTIVER CARREGANDO ---
   if (!event) {
-      return (
-        <div className="loading-container" style={{color: 'white', padding: 50, textAlign: 'center'}}>
-            <h2>Carregando evento...</h2>
-            {/* Debug para você ver o que está acontecendo se travar */}
-            <p style={{color: '#666', fontSize: 12}}>
-                Tentando carregar: {eventIdentifier || "Nenhum ID detectado na URL"}
-            </p>
-        </div>
-      );
+    return (
+      <div className="loading-container" style={{ color: 'white', padding: 50, textAlign: 'center' }}>
+        <h2>Carregando evento...</h2>
+        {/* Debug para você ver o que está acontecendo se travar */}
+        <p style={{ color: '#666', fontSize: 12 }}>
+          Tentando carregar: {eventIdentifier || "Nenhum ID detectado na URL"}
+        </p>
+      </div>
+    );
   }
 
   return (
@@ -235,7 +271,7 @@ export function EventDetails() {
               </span>
               <button
                 className="photo-delete-btn"
-                onClick={() => handleDeletePhoto(photo.id)}
+                onClick={() => handleDeletePhoto(photo.id, photo.image_url)} // <--- Passa a URL aqui
               >
                 <Trash size={16} color="#ff4444" />
               </button>

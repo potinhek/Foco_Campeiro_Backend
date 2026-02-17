@@ -12,12 +12,12 @@ function formatSlug(text: string) {
     return text
         .toString()
         .toLowerCase()
-        .normalize('NFD').replace(/[\u0300-\u036f]/g, '') 
-        .replace(/\s+/g, '-')     
-        .replace(/[^\w\-]+/g, '') 
-        .replace(/\-\-+/g, '-')   
-        .replace(/^-+/, '')       
-        .replace(/-+$/, '');      
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/[^\w\-]+/g, '')
+        .replace(/\-\-+/g, '-')
+        .replace(/^-+/, '')
+        .replace(/-+$/, '');
 }
 
 export function Dashboard() {
@@ -65,7 +65,7 @@ export function Dashboard() {
                 location: eventData.location,
                 image_url: eventData.image_url,
                 pricing: eventData.pricing,
-                slug: finalSlug 
+                slug: finalSlug
             };
 
             if (editingEvent) {
@@ -120,9 +120,13 @@ export function Dashboard() {
                 // Atualiza a lista na tela removendo o evento apagado
                 setEvents(events.filter((event) => event.id !== eventId));
 
-            } catch (error) {
-                console.error("Erro ao excluir:", error);
-                alert("Erro ao tentar excluir o evento.");
+            } catch (error: any) {
+                console.error("Erro completo:", error);
+
+                // Tenta pegar a mensagem técnica do Supabase
+                const mensagemErro = error.message || error.error_description || "Erro desconhecido";
+
+                alert(`Não foi possível excluir!\nDetalhe técnico: ${mensagemErro}`);
             }
         }
     }
@@ -177,19 +181,19 @@ export function Dashboard() {
                                     <div className="card-location">
                                         <MapPin size={16} /> {event.location}
                                     </div>
-                                    
+
                                     <div className="card-actions">
                                         <button className="btn-card" onClick={() => navigate(`/event/${event.slug || event.id}`)}>
                                             Ver Fotos
                                         </button>
-                                        
+
                                         <button className="btn-card" onClick={() => handleOpenEdit(event)}>
                                             Editar
                                         </button>
 
                                         {/* Botão de Excluir */}
                                         <button
-                                            className="btn-card"                                               
+                                            className="btn-card"
                                             onClick={() => handleDeleteEvent(event.id)}
                                             title="Excluir Evento"
                                         >

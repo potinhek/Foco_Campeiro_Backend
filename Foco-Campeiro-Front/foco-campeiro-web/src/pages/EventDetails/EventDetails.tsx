@@ -3,6 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Calendar, MapPin, UploadSimple, ShareNetwork, Trash, Images } from '@phosphor-icons/react';
 import { supabase } from '../../config/supabase';
 import './EventDetails.css';
+import { UploadProgress } from '../../components/UploadProgress/UploadProgress';
+import { usePhotoUpload } from  '../../hooks/usePhotoUpload';
 
 export function EventDetails() {
   // --- CORREÇÃO BLINDADA ---
@@ -13,7 +15,6 @@ export function EventDetails() {
 
   const [event, setEvent] = useState<any>(null);
   const [photos, setPhotos] = useState<any[]>([]);
-  const [uploading, setUploading] = useState(false);
 
   // 2. CARREGA DADOS
   async function loadData() {
@@ -66,83 +67,10 @@ export function EventDetails() {
   useEffect(() => {
     loadData();
   }, [eventIdentifier]); // Roda sempre que o identificador mudar
+    const { uploading, progress, handleUpload } = usePhotoUpload(event?.id, loadData);
 
-  // --- Processa Imagem ---
-  const processImage = (file: File): Promise<Blob> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = (event) => {
-        const img = new Image();
-        img.src = event.target?.result as string;
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const maxWidth = 900;
-          const scale = maxWidth / img.width;
-          const width = scale < 1 ? maxWidth : img.width;
-          const height = scale < 1 ? img.height * scale : img.height;
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          if (!ctx) { reject(new Error("Erro no Canvas")); return; }
-          ctx.drawImage(img, 0, 0, width, height);
-          const fontSize = Math.floor(width * 0.10);
-          ctx.font = `bold ${fontSize}px Arial`;
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.save();
-          ctx.translate(width / 2, height / 2);
-          ctx.rotate(-Math.PI / 6);
-          ctx.fillText("FOCO CAMPEIRO", 0, 0);
-          ctx.restore();
-          canvas.toBlob((blob) => {
-            if (blob) resolve(blob);
-            else reject(new Error("Erro ao processar imagem"));
-          }, 'image/jpeg', 0.6);
-        };
-        img.onerror = (err) => reject(err);
-      };
-      reader.onerror = (err) => reject(err);
-    });
-  };
-
-  // 3. FUNÇÃO DE UPLOAD
-  async function handleUpload(files: FileList | null) {
-    if (!files || !event) return;
-    setUploading(true);
-
-    try {
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const processedBlob = await processImage(file);
-        const fileName = `${Date.now()}_${file.name}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from('event-photos')
-          .upload(fileName, processedBlob);
-
-        if (uploadError) throw uploadError;
-
-        const { data } = supabase.storage
-          .from('event-photos')
-          .getPublicUrl(fileName);
-
-        await supabase.from('photos').insert({
-          event_id: event.id, // ID real do banco
-          image_url: data.publicUrl,
-          original_name: file.name
-        });
-      }
-      await loadData();
-      alert('Fotos enviadas com sucesso!');
-    } catch (error) {
-      console.error(error);
-      alert('Erro ao enviar fotos.');
-    } finally {
-      setUploading(false);
-    }
-  }
+  
+  
 
   async function handleDeletePhoto(photoId: number, imageUrl: string) {
     
@@ -235,24 +163,39 @@ export function EventDetails() {
       </div>
 
       <div className="upload-section">
-        <label htmlFor="photo-upload" className="upload-label">
-          <UploadSimple size={48} color="#DAA520" />
-          <span className="upload-text">
-            {uploading ? 'Otimizando e enviando...' : 'Clique ou arraste suas fotos aqui'}
-          </span>
-          <span className="upload-sub">
-            Fotos otimizadas para visualização web (900px + Marca D'água)
-          </span>
-        </label>
-        <input
-          id="photo-upload"
-          type="file"
-          multiple
-          accept="image/*"
-          style={{ display: 'none' }}
-          onChange={(e) => handleUpload(e.target.files)}
-          disabled={uploading}
-        />
+        
+        {/* LÓGICA: Se estiver enviando, mostra a barra. Se não, mostra o botão. */}
+        {uploading ? (
+          
+          /* AQUI ENTRA A BARRA NOVA */
+          <UploadProgress current={progress.current} total={progress.total} />
+          
+        ) : (
+          
+          /* AQUI FICA O SEU BOTÃO ANTIGO (Preservado) */
+          <>
+            <label htmlFor="photo-upload" className="upload-label">
+              <UploadSimple size={48} color="#DAA520" />
+              <span className="upload-text">
+                Clique ou arraste suas fotos aqui
+              </span>
+              <span className="upload-sub">
+                Fotos otimizadas para visualização web (900px + Marca D'água)
+              </span>
+            </label>
+            
+            <input
+              id="photo-upload"
+              type="file"
+              multiple
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={(e) => handleUpload(e.target.files)}
+              disabled={uploading}
+            />
+          </>
+          
+        )}
       </div>
 
       <div className="gallery-section">

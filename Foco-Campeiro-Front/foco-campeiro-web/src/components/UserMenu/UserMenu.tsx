@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { User, SignOut, CaretDown, Receipt } from '@phosphor-icons/react';
+import { User, SignOut, CaretDown, Receipt, Storefront } from '@phosphor-icons/react';
 import { supabase } from '../../config/supabase';
 import './UserMenu.css'; // Importando o CSS separado
-
 export function UserMenu() {
   const navigate = useNavigate();
   const [userEmail, setUserEmail] = useState('Visitante'); 
@@ -60,7 +59,15 @@ export function UserMenu() {
       {/* DROPDOWN (Menu Flutuante) */}
       {isOpen && (
         <div className="user-dropdown">
-          
+          {/* NOVO ITEM: MINHA EMPRESA (Configurações) */}
+          <Link 
+            to="/settings" 
+            className="menu-item"
+            onClick={() => setIsOpen(false)}
+          >
+            <Storefront size={18} /> 
+            Minha Empresa
+          </Link>
           {/* --- NOVO ITEM: MINHAS VENDAS --- */}
           <Link 
             to="/dashboard/movimentacao" 

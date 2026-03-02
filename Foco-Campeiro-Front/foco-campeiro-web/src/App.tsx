@@ -7,7 +7,7 @@ import { PublicEvent } from './pages/PublicEvent/PublicEvent';
 import { PublicGallery } from './pages/PublicGallery/PublicGallery';
 import { MyOrders } from './pages/Dashboard/MyOrders/MyOrders';
 import { PrivateRouter } from './components/PrivateRouter/PrivateRouter'; // Importação correta
-
+import { Settings } from './pages/Settings/Settings';
 function App() {
   return (
     <BrowserRouter>
@@ -36,7 +36,8 @@ function App() {
           <Route path="/event/:slug" element={<EventDetails />} />
           
         </Route>
-
+          {/* ROTA DE CONFIGURAÇÕES DO FOTÓGRAFO (PROTEGIDA 🔒) */}
+          <Route path="/settings" element={<Settings />} />
       </Routes>
     </BrowserRouter>
   );

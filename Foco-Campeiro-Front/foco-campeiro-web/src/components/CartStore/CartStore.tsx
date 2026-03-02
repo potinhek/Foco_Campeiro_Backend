@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { X, Trash, WhatsappLogo, Tag } from '@phosphor-icons/react';
 import './CartStore.css';
-// Verifique se esse caminho está certo
 import { CheckoutModal, type CustomerData } from '../CheckoutModal/CheckoutModal';
-// Verifique se esse caminho está certo
 import { supabase } from '../../config/supabase';
+import { sendOrderToWhatsApp } from '../../utils/whatsapp';
 
 // --- INTERFACES ---
 
@@ -23,6 +22,7 @@ interface EventData {
   name: string;
   whatsapp: string;
   pricing: EventPricing;
+  companyName?: string;
 }
 
 interface CartItem {
@@ -88,28 +88,22 @@ export function CartStore({
 
   const economy = fullPrice - total;
 
-  // --- FUNÇÃO CORRIGIDA ---
+  // --- FUNÇÃO DE PROCESSAR PEDIDO ---
   async function handleProcessOrder(customer: CustomerData) {
-    // CORREÇÃO 1: Usar 'eventData' direto, sem 'props.'
-    if (!eventData?.whatsapp) {
-      alert("Erro: WhatsApp não configurado.");
-      return;
-    }
-    
-    // Verificação de segurança para o Banco de Dados
-    if (!eventData.id) {
-      alert("Erro: ID do evento não encontrado. Não é possível salvar no banco.");
+    // Validações
+    if (!eventData?.whatsapp || !eventData.id) {
+      alert("Erro: Configuração do evento incompleta.");
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      // --- PASSO A: Criar Order ---
+      // 1. Salva o Pedido na tabela 'orders'
       const { data: orderData, error: orderError } = await supabase
         .from('orders')
         .insert({
-          event_id: eventData.id, // CORREÇÃO: removido 'props.'
+          event_id: eventData.id,
           customer_name: customer.name,
           customer_phone: customer.phone,
           customer_email: customer.email,
@@ -123,11 +117,9 @@ export function CartStore({
         .single();
 
       if (orderError) throw orderError;
-
       const orderId = orderData.id;
 
-      // --- PASSO B: Salvar Itens ---
-      // CORREÇÃO: Usar 'cartItems' direto, sem 'props.'
+      // 2. Salva os Itens na tabela 'order_items'
       const itemsToInsert = cartItems.map(item => ({
         order_id: orderId,
         photo_id: item.id,
@@ -141,41 +133,25 @@ export function CartStore({
 
       if (itemsError) throw itemsError;
 
-      // --- SUCESSO ---
+      // 3. Envia pro Zap (Usando a função nova que criamos)
       console.log("Pedido salvo com sucesso ID:", orderId);
+      
+      sendOrderToWhatsApp({
+        orderId,
+        customer,
+        eventData, // Já tem tudo: name, whatsapp e companyName
+        cartItems,
+        total,
+        details
+      });
 
-      const photoList = cartItems
-        .map(item => item.original_name || `ID:${item.id}`)
-        .join(', ');
-
-      const message = 
-        `*PEDIDO #${orderId} - FOCO CAMPEIRO*\n` +
-        `________________________________\n\n` +
-        `*CLIENTE*\n` +
-        `👤 Nome: ${customer.name}\n` +
-        `📱 Tel: ${customer.phone}\n` +
-        `${customer.cpf ? `📄 CPF: ${customer.cpf}\n` : ''}` +
-        `\n` +
-        `*DETALHES DO EVENTO*\n` +
-        `Evento: ${eventData.name}\n\n` +
-        `*ITENS SELECIONADOS (${cartItems.length})*\n` +
-        `${photoList}\n\n` +
-        `*RESUMO FINANCEIRO*\n` +
-        `Regra: ${details.join(' + ')}\n` +
-        `*VALOR FINAL: R$ ${total.toFixed(2)}*\n` +
-        `________________________________\n\n` +
-        `Olá! Meu pedido nº ${orderId} foi registrado. Segue os dados para pagamento!`;
-
-      const url = `https://api.whatsapp.com/send?phone=55${eventData.whatsapp}&text=${encodeURIComponent(message)}`;
-      window.open(url, '_blank');
-
+      // Fecha o modal após sucesso
       setIsCheckoutOpen(false);
-      // onClose(); // Descomente se quiser fechar o carrinho ao finalizar
+      // onClose(); // Se quiser fechar o carrinho também, descomente aqui
 
-    } catch (error: any) { // Adicione o 'any' ou o tipo correto do erro
+    } catch (error: any) { 
       console.error("Erro detalhado:", error);
-      // Alteramos aqui para mostrar a mensagem do banco na tela
-      alert(`Erro no banco de dados: ${error.message || JSON.stringify(error)}`);
+      alert(`Erro ao processar: ${error.message || "Tente novamente."}`);
     } finally {
       setIsSubmitting(false);
     }

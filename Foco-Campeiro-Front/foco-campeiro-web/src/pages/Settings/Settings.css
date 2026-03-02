@@ -1,0 +1,101 @@
+.settings-container {
+    padding: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+    color: white;
+}
+
+.page-subtitle {
+    color: #888;
+    margin-bottom: 2rem;
+}
+
+.settings-card {
+    background-color: #1e1e1e;
+    padding: 2rem;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: bold;
+    color: #DAA520;
+}
+
+.form-group input {
+    background: #2a2a2a;
+    border: 1px solid #444;
+    padding: 12px;
+    border-radius: 4px;
+    color: white;
+    font-size: 1rem;
+}
+
+.form-group small {
+    color: #666;
+    font-size: 0.8rem;
+}
+
+/* Logo Upload */
+.logo-preview-area {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.logo-preview-img {
+    height: 80px;
+    border-radius: 4px;
+    background: #000;
+}
+
+.logo-placeholder {
+    height: 80px;
+    width: 80px;
+    background: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+
+.btn-upload {
+    background: #333;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.2s;
+}
+.btn-upload:hover { background: #444; }
+
+/* Botão Salvar */
+.btn-save {
+    background-color: #DAA520;
+    color: black;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+}
+.btn-save:hover { background-color: #b8860b; }
+.btn-save:disabled { opacity: 0.5; cursor: not-allowed; }

@@ -28,42 +28,66 @@ export function MyOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
+  const [updatingId, setUpdatingId] = useState<number | null>(null);
 
   useEffect(() => {
     fetchOrders();
   }, []);
 
   async function fetchOrders() {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('orders')
-        .select(`
-          *,
-          order_items (photo_name, price_at_purchase)
-        `)
-        .order('created_at', { ascending: false });
+  try {
+    setLoading(true);
+    
+    // Pega o usuário logado para garantir o filtro
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) return;
 
-      if (error) throw error;
-      setOrders(data || []);
-    } catch (error) {
-      console.error('Erro ao buscar pedidos:', error);
-    } finally {
-      setLoading(false);
-    }
+    const { data, error } = await supabase
+      .from('orders')
+      .select(`
+        *,
+        order_items (photo_name, price_at_purchase),
+        events!inner (
+           organization_id,
+           organizations!inner (
+             owner_id
+           )
+        )
+      `)
+      // 👇 O PULO DO GATO: Filtra no Front também para garantir performance
+      .eq('events.organizations.owner_id', user.id) 
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    setOrders(data || []);
+  } catch (error) {
+    console.error('Erro ao buscar pedidos:', error);
+  } finally {
+    setLoading(false);
   }
-
+}
   async function updateStatus(id: number, newStatus: string) {
+  try {
+    setUpdatingId(id); // Trava o botão e mostra loading
+    
     const { error } = await supabase
       .from('orders')
       .update({ status: newStatus })
       .eq('id', id);
 
-    if (!error) {
-      setOrders(orders.map(o => o.id === id ? { ...o, status: newStatus } : o));
-    }
-  }
+    if (error) throw error;
 
+    // Atualiza a lista localmente para não precisar recarregar tudo
+    setOrders(prev => prev.map(o => o.id === id ? { ...o, status: newStatus } : o));
+
+  } catch (error) {
+    console.error(error);
+    alert('Erro ao atualizar status');
+  } finally {
+    setUpdatingId(null); // Destrava o botão
+  }
+}
   // Formata data e hora
   function formatDate(dateString: string) {
     const date = new Date(dateString);

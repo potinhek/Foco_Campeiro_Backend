@@ -4,9 +4,11 @@ import { PlusCircle, CameraSlash, MapPin, Trash } from '@phosphor-icons/react';
 import './Dashboard.css';
 import { CreateEventModal } from "../../components/CreateEventModal/CreateEventModal";
 import { useNavigate } from 'react-router-dom';
-import { Logo } from '../../components/Logo/Logo';
 import { UserMenu } from '../../components/UserMenu/UserMenu';
 import { supabase } from '../../config/supabase';
+import { Brand } from '../../components/Brand/Brand';
+import { UserCircle } from '@phosphor-icons/react';
+
 
 function formatSlug(text: string) {
     return text
@@ -25,12 +27,43 @@ export function Dashboard() {
     const [editingEvent, setEditingEvent] = useState<any>(null);
     const [events, setEvents] = useState<any[]>([]);
     const navigate = useNavigate();
+    const [user, setUser] = useState<any>(null);
+    const [organization, setOrganization] = useState<any>(null);
+
+    useEffect(() => {
+        async function getOrgData() {
+            const { data: { user } } = await supabase.auth.getUser();
+            setUser(user);
+
+            if (user) {
+                const { data: org } = await supabase
+                    .from('organizations')
+                    .select('id, name, logo_url') // <--- PEÇA O ID TAMBÉM
+                    .eq('owner_id', user.id)
+                    .single();
+
+                if (org) {
+                    setOrganization(org);
+                    fetchEvents(org.id); // <--- ASSIM QUE ACHAR A EMPRESA, BUSCA OS EVENTOS DELA
+                }
+            }
+        }
+        getOrgData();
+    }, []); 
 
     // 1. FUNÇÃO PARA BUSCAR EVENTOS
-    async function fetchEvents() {
+    async function fetchEvents(orgId?: string) {
+
+        // Se não tiver organização definida ainda, não busca nada (evita erro)
+        if (!orgId && !organization?.id) return;
+
+        // O ID certo a usar
+        const targetOrgId = orgId || organization?.id;
+
         const { data, error } = await supabase
             .from('events')
             .select('*')
+            .eq('organization_id', targetOrgId) // <--- O SEGREDO É ESSA LINHA
             .order('date', { ascending: true });
 
         if (error) {
@@ -135,8 +168,11 @@ export function Dashboard() {
         <div className="dashboard-container">
             <header className="header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div className="logo-area-dash">
-                    <Logo height={50} />
-                    <span className="logo-text"> Foco Campeiro</span>
+                    {/* Se tiver organização carregada, mostra a marca dela. Senão, mostra um loading ou nada */}
+                    <Brand
+                        logoUrl={organization?.logo_url}
+                        name={organization?.name}
+                    />
                 </div>
 
                 <div className="user-area">

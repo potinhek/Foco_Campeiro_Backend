@@ -9,7 +9,7 @@ import {
   CheckCircle
 } from '@phosphor-icons/react';
 import { supabase } from '../../config/supabase';
-import { Logo } from '../../components/Logo/Logo';
+import { Brand } from '../../components/Brand/Brand';
 import './PublicEvent.css';
 
 // IMPORTAÇÃO DOS COMPONENTES NOVOS
@@ -29,7 +29,7 @@ export function PublicEvent() {
     const savedCart = localStorage.getItem('@FocoCampeiro:cart');
     return savedCart ? JSON.parse(savedCart) : [];
   });
-  
+
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<any>(null);
 
@@ -67,14 +67,14 @@ export function PublicEvent() {
 
         let { data: eventData } = await supabase
           .from('events')
-          .select('*')
+          .select('*, organizations(name, logo_url, whatsapp)')
           .eq('slug', slug)
           .single();
 
         if (!eventData && !isNaN(Number(slug))) {
           const { data: eventById } = await supabase
             .from('events')
-            .select('*')
+            .select('*, organizations(name, logo_url, whatsapp)')
             .eq('id', slug)
             .single();
           eventData = eventById;
@@ -90,7 +90,8 @@ export function PublicEvent() {
         const { data: photosData, error: photosError } = await supabase
           .from('photos')
           .select('*')
-          .eq('event_id', eventData.id);
+          .eq('event_id', eventData.id)
+          .limit(100);
 
         if (photosError) throw photosError;
         setPhotos(photosData || []);
@@ -128,7 +129,7 @@ export function PublicEvent() {
   function handleNextPhoto() {
     if (!selectedPhoto || photos.length <= 1) return;
     const currentIndex = photos.findIndex(p => p.id === selectedPhoto.id);
-    const nextIndex = (currentIndex + 1) % photos.length; 
+    const nextIndex = (currentIndex + 1) % photos.length;
     setSelectedPhoto(photos[nextIndex]);
   }
 
@@ -146,6 +147,19 @@ export function PublicEvent() {
   const { singlePrice } = calculateTotal();
   const hasPackages = event.pricing?.packages?.length > 0;
 
+  const getCleanWhatsapp = () => {
+  // 1. Tenta pegar da organização. Se não tiver, tenta do evento (fallback)
+  const raw = event?.organizations?.whatsapp || ""; 
+  
+  // 2. Remove parênteses, traços e espaços (deixa só números)
+  const clean = raw.replace(/\D/g, ''); 
+  
+  // 3. Segurança: Se estiver vazio, retorna vazio
+  if (!clean) return ""; 
+
+  // 4. Se já começar com 55, usa ele. Se não, adiciona o 55 na frente.
+  return clean.startsWith('55') ? clean : `55${clean}`;
+}
   return (
     <div className="public-event-container no-select" onContextMenu={(e) => e.preventDefault()}>
 
@@ -159,8 +173,10 @@ export function PublicEvent() {
       {/* HEADER */}
       <header className="pe-header">
         <div className="brand-wrapper">
-          <Logo />
-          <span className="brand-text">FOCO CAMPEIRO</span>
+          <Brand
+            logoUrl={event.organizations?.logo_url}
+            name={event.organizations?.name}
+          />
         </div>
         <button className="header-btn-cart" onClick={() => setIsCartOpen(true)}>
           <ShoppingCart size={20} /> Carrinho ({cart.length})
@@ -169,7 +185,7 @@ export function PublicEvent() {
 
       {/* COMPONENTE LIGHTBOX (FOTO GRANDE) */}
       {selectedPhoto && (
-        <Lightbox 
+        <Lightbox
           photo={selectedPhoto}
           onClose={() => setSelectedPhoto(null)}
           onNext={handleNextPhoto}
@@ -230,18 +246,19 @@ export function PublicEvent() {
       </div>
 
       {/* COMPONENTE CARRINHO */}
-      <CartStore 
+      <CartStore
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
         cartItems={cart}
         onRemoveItem={removeFromCart}
         eventData={{
-          id: event.id, 
+          id: event.id,
           name: event.name,
-          whatsapp: '42988332968', 
-          pricing: event.pricing
+          whatsapp: getCleanWhatsapp(), 
+          pricing: event.pricing,
+          companyName: event.organizations?.name || "Empresa não informada"
         }}
-      />  
+      />
 
     </div>
   );

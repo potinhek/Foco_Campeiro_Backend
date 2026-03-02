@@ -1,0 +1,22 @@
+.brand-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+}
+
+.brand-img{
+    height:40px;
+    width: auto;
+    max-width: 150px;
+    object-fit: contain;
+}
+
+.brand-text {
+    font-weight: 700;
+    color: #DAA520;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    white-space: nowrap;
+}

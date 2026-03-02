@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../config/supabase';
-import { FloppyDisk, UploadSimple, User, WhatsappLogo, Storefront } from '@phosphor-icons/react';
+import { FloppyDisk, UploadSimple, WhatsappLogo, Storefront } from '@phosphor-icons/react';
 import './Settings.css'; // Vamos criar esse CSS no passo 2
 import { useNavigate } from 'react-router-dom'; 
 

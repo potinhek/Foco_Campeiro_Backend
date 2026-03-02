@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { UserMenu } from '../../components/UserMenu/UserMenu';
 import { supabase } from '../../config/supabase';
 import { Brand } from '../../components/Brand/Brand';
-import { UserCircle } from '@phosphor-icons/react';
+
 
 
 function formatSlug(text: string) {
@@ -27,7 +27,7 @@ export function Dashboard() {
     const [editingEvent, setEditingEvent] = useState<any>(null);
     const [events, setEvents] = useState<any[]>([]);
     const navigate = useNavigate();
-    const [user, setUser] = useState<any>(null);
+    const [setUser] = useState<any>(null);
     const [organization, setOrganization] = useState<any>(null);
 
     useEffect(() => {

@@ -28,14 +28,14 @@ export function MyOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
-  const [updatingId, setUpdatingId] = useState<number | null>(null);
+  const [_updatingId, setUpdatingId] = useState<number | null>(null);
 
   useEffect(() => {
     fetchOrders();
   }, []);
 
   async function fetchOrders() {
-  try {
+  try { 
     setLoading(true);
     
     // Pega o usuário logado para garantir o filtro

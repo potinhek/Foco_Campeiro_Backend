@@ -179,7 +179,7 @@ export function PublicEvent() {
           />
         </div>
         <button className="header-btn-cart" onClick={() => setIsCartOpen(true)}>
-          <ShoppingCart size={20} /> Carrinho ({cart.length})
+          <ShoppingCart size={20} /> <span className="cart-text">Carrinho</span> ({cart.length})
         </button>
       </header>
 

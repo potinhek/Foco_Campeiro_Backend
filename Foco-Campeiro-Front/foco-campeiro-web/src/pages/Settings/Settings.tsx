@@ -45,9 +45,13 @@ export function Settings() {
 
     // 2. Função para salvar as alterações
     async function handleSave() {
+        if (!user) return; // Garante que tem usuário logado
+
+        setSaving(true);
         setSaving(true);
         try {
             const updates = {
+                owner_id: user.id,
                 name,
                 slug, // Cuidado: mudar o slug pode quebrar links antigos, mas vamos deixar editar por enquanto
                 whatsapp,
@@ -57,8 +61,7 @@ export function Settings() {
 
             const { error } = await supabase
                 .from('organizations')
-                .update(updates)
-                .eq('owner_id', user.id)
+                .upsert(updates, { onConflict: 'owner_id' });
 
             if (error) throw error; 
             alert('Dados atualizados com sucesso!');

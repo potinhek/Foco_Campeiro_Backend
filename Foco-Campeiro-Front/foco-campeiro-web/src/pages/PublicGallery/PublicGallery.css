@@ -17,22 +17,27 @@
   border-bottom: 1px solid #222;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between; /* <-- Empurra um para cada lado */
+  padding: 0 20px; /* <-- Dá um respiro nas laterais */
   background-color: #000;
-  position: relative; /* Necessário para o botão absoluto funcionar */
 }
 
+.gallery-header .logo-container { /* Adapte para a classe da sua logo se precisar */
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
 /* Botão Área do Fotógrafo (Extraído do style inline) */
 .btn-photographer {
-  position: absolute;
-  top: 20px;
-  right: 20px;
+  z-index: 10; /* Garante que fique clicável por cima */
   background: transparent;
   border: none;
-  color: #888; /* Ajustei a cor para aparecer no fundo preto (antes estava #333 invisível) */
+  color: #888;
   font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
   transition: color 0.2s;
+  margin-left: auto; /* Empurra pro canto direito */
 }
 
 .btn-photographer:hover {

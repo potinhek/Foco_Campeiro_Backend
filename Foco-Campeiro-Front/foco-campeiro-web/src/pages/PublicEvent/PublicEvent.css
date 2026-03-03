@@ -381,30 +381,100 @@ img {
 
 /* --- RESPONSIVIDADE --- */
 @media (max-width: 768px) {
+    /* 1. CABEÇALHO (Header) - Desapertando os itens */
+    .pe-header {
+        padding: 10px 15px;
+        gap: 10px;
+    }
+
+    /* Trava o tamanho máximo da logo+nome para não esmagar o botão */
+    .brand-wrapper {
+        max-width: 65%; 
+        overflow: hidden; 
+    }
+
+    .brand-wrapper img,
+    .brand-wrapper svg {
+        height: 30px; 
+        min-width: 30px; 
+    }
+
+    /* Força o nome do fotógrafo a diminuir e colocar '...' se for muito grande */
+    .brand-wrapper h1, 
+    .brand-wrapper h2, 
+    .brand-wrapper span {
+        font-size: 1rem !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis; 
+    }
+
+    /* 2. BOTÃO DO CARRINHO COMPACTO */
+    .header-btn-cart {
+        padding: 6px 10px;
+        flex-shrink: 0; 
+    }
+
+    
+    .cart-text {
+        display: none;
+    }
+
+    /* 2. CAPA DO EVENTO (Hero) */
+    .pe-hero {
+        padding: 30px 15px; 
+    }
+    
+    .pe-hero h1 {
+        font-size: 1.6rem;
+    }
+
+    /* 3. PÍLULAS DE DATA E LOCAL - Organizando a quebra */
+    .pe-hero-meta {
+        flex-direction: column; 
+        gap: 8px;
+        border-radius: 8px; 
+        width: 100%;
+        max-width: 250px; 
+        padding: 10px;
+    }
+
+    .price-highlight {
+        font-size: 1rem;
+        margin-top: 15px;
+    }
+
+    /* 4. BOTÃO DE VOLTAR - Alinhando com as fotos */
+    .back-nav {
+        padding: 15px 10px 10px 10px; /* Tira aquele espaço vazio enorme da esquerda */
+    }
+
+    .back-link {
+        font-size: 0.9rem;
+    }
+
+    /* 5. GRID DE FOTOS */
     .pe-grid {
         grid-template-columns: repeat(2, 1fr); 
         gap: 8px; 
         padding: 0 10px; 
     }
 
+    /* 6. LIMPEZA DA FOTO - Esconde o nome do arquivo longo no celular */
+    .photo-name-tag {
+        display: none; /* Deixa o grid super limpo, focando só na imagem e no botão */
+    }
+
     /* Ajuste: Botão de adicionar (+) menor no celular */
     .btn-add-cart {
-        width: 30px;
-        height: 30px;
+        width: 32px;
+        height: 32px;
         bottom: 5px;
         right: 5px;
     }
     
     .btn-add-cart svg {
-        width: 14px;
-        height: 14px;
-    }
-
-    .pe-hero {
-        padding: 40px 15px;
-    }
-    
-    .pe-hero h1 {
-        font-size: 1.8rem;
+        width: 16px;
+        height: 16px;
     }
 }

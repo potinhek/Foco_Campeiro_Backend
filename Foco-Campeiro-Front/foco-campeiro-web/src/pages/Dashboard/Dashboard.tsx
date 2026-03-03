@@ -27,13 +27,11 @@ export function Dashboard() {
     const [editingEvent, setEditingEvent] = useState<any>(null);
     const [events, setEvents] = useState<any[]>([]);
     const navigate = useNavigate();
-    const [setUser] = useState<any>(null);
     const [organization, setOrganization] = useState<any>(null);
 
     useEffect(() => {
         async function getOrgData() {
             const { data: { user } } = await supabase.auth.getUser();
-            setUser(user);
 
             if (user) {
                 const { data: org } = await supabase
@@ -73,10 +71,6 @@ export function Dashboard() {
         }
     }
 
-    useEffect(() => {
-        fetchEvents();
-    }, []);
-
     function handleOpenCreate() {
         setEditingEvent(null);
         setIsModalOpen(true);
@@ -89,10 +83,16 @@ export function Dashboard() {
 
     async function handleEventSuccess(eventData: any) {
         try {
+
+            if (!organization?.id) {
+                alert("Erro: Organização não identificada. Tente recarregar a página.");
+                return;
+            }
             const rawSlug = eventData.slug ? eventData.slug : eventData.name;
             const finalSlug = formatSlug(rawSlug);
 
             const payload = {
+                organization_id: organization.id,
                 name: eventData.name,
                 date: eventData.date,
                 location: eventData.location,
@@ -124,7 +124,7 @@ export function Dashboard() {
             // Atualiza a tela
             setIsModalOpen(false);
             setEditingEvent(null);
-            fetchEvents();
+            fetchEvents(organization.id);
 
         } catch (error: any) {
             console.error(error);

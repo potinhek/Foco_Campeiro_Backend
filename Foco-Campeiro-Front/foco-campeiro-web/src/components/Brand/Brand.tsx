@@ -9,7 +9,7 @@ interface BrandProps {
 export function Brand({ logoUrl, name }: BrandProps) {
     // 2. As variáveis e lógicas ficam DENTRO da função do componente
     const defaultLogo = logoImg; // Caminho para a imagem padrão
-    const defaultName = "Foco Campeiro";
+   // const defaultName = "Foco Campeiro";
 
     return (
         <div className="brand-container">
@@ -19,7 +19,7 @@ export function Brand({ logoUrl, name }: BrandProps) {
                 className="brand-img"
             />
             <span className="brand-text">
-                {name || defaultName}
+                {name}
             </span>
         </div>
     );

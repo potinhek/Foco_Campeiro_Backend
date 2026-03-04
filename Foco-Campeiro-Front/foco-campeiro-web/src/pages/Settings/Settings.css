@@ -97,5 +97,92 @@
     gap: 8px;
     font-size: 1rem;
 }
+
+.slug-input-wrapper {
+    display: flex;
+    align-items: center;
+    background: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.slug-input-wrapper span {
+    padding: 12px;
+    background: #1a1a1a;
+    color: #888;
+    border-right: 1px solid #444;
+    font-size: 0.9rem;
+    white-space: nowrap; /* Impede que o texto fococampeiro... quebre linha */
+}
+
+.slug-input-wrapper input {
+    border: none;
+    background: transparent;
+    flex: 1;
+    border-radius: 0;
+    width: 100%;
+}
+
+.slug-input-wrapper input:focus {
+    outline: none;
+}
+
+/* ========================================== */
+/* RESPONSIVIDADE PARA CELULAR (MOBILE)       */
+/* ========================================== */
+@media (max-width: 768px) {
+    /* Diminui os espaços em branco para aproveitar a tela do celular */
+    .settings-container {
+        padding: 15px;
+    }
+    
+    .settings-card {
+        padding: 20px 15px;
+    }
+
+    /* 1. Empilha a Logo e o Botão de Upload */
+    .logo-preview-area {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    /* Limita o tamanho máximo da logo para não estourar a tela */
+    .logo-preview-img {
+        max-width: 100%;
+        height: auto;
+        max-height: 120px;
+        object-fit: contain;
+    }
+
+    /* 2. Botão de Upload Largo */
+    .btn-upload {
+        width: 100%;
+        justify-content: center;
+        padding: 12px;
+        font-size: 1rem;
+    }
+
+    /* 3. Botão de Salvar Largo */
+    .btn-save {
+        width: 100%;
+        justify-content: center;
+        padding: 14px;
+        margin-top: 10px;
+    }
+
+    /* 4. Ajuste do link (Slug) para telas muito pequenas */
+    .slug-input-wrapper {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .slug-input-wrapper span {
+        border-right: none;
+        border-bottom: 1px solid #444;
+        text-align: center;
+    }
+}
 .btn-save:hover { background-color: #b8860b; }
 .btn-save:disabled { opacity: 0.5; cursor: not-allowed; }

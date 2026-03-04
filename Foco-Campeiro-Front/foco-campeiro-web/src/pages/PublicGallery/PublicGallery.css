@@ -2,7 +2,7 @@
 
 .gallery-container {
   min-height: 100vh;
-  width: 100%; 
+  width: 100%;
   background-color: #050505;
   color: #FFF;
   font-family: 'Inter', sans-serif;
@@ -12,24 +12,29 @@
 
 /* Header */
 .gallery-header {
-  width: 100%; 
+  width: 100%;
   height: 70px;
   border-bottom: 1px solid #222;
   display: flex;
   align-items: center;
-  justify-content: space-between; /* <-- Empurra um para cada lado */
-  padding: 0 20px; /* <-- Dá um respiro nas laterais */
+  justify-content: space-between;
+  /* <-- Empurra um para cada lado */
+  padding: 0 20px;
+  /* <-- Dá um respiro nas laterais */
   background-color: #000;
 }
 
-.gallery-header .logo-container { /* Adapte para a classe da sua logo se precisar */
+.gallery-header .logo-container {
+  /* Adapte para a classe da sua logo se precisar */
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
 }
+
 /* Botão Área do Fotógrafo (Extraído do style inline) */
 .btn-photographer {
-  z-index: 10; /* Garante que fique clicável por cima */
+  z-index: 10;
+  /* Garante que fique clicável por cima */
   background: transparent;
   border: none;
   color: #888;
@@ -37,7 +42,8 @@
   font-weight: 500;
   cursor: pointer;
   transition: color 0.2s;
-  margin-left: auto; /* Empurra pro canto direito */
+  margin-left: auto;
+  /* Empurra pro canto direito */
 }
 
 .btn-photographer:hover {
@@ -49,8 +55,8 @@
   width: 100%;
   text-align: center;
   padding: 80px 20px;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.7), #050505),
-              url('https://images.unsplash.com/photo-1598556776374-2c0eb4fb2c52?auto=format&fit=crop&q=80');
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), #050505),
+    url('https://images.unsplash.com/photo-1598556776374-2c0eb4fb2c52?auto=format&fit=crop&q=80');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -101,8 +107,14 @@
 .icon-inline {
   vertical-align: middle;
 }
-.mr-4 { margin-right: 4px; }
-.ml-5 { margin-left: 5px; }
+
+.mr-4 {
+  margin-right: 4px;
+}
+
+.ml-5 {
+  margin-left: 5px;
+}
 
 /* Grid de Eventos */
 .events-section {
@@ -214,7 +226,7 @@
   height: 70px;
   width: auto;
   transition: transform 0.3s ease;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 .gallery-header img:hover,
@@ -222,7 +234,78 @@
   transform: scale(1.05);
 }
 
+/* NOVA BARRA DE PESQUISA                     */
+/* ========================================== */
+.search-container {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 30px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+  transition: color 0.2s;
+}
+
+.search-input {
+  width: 100%;
+  background-color: #111111;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: #FFF;
+  font-size: 1rem;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s ease;
+  outline: none;
+  box-sizing: border-box !important;
+  padding: 14px 16px 14px 48px !important;
+}
+
+.search-input::placeholder {
+  color: #666;
+}
+
+.search-input:focus {
+  border-color: rgba(218, 165, 32, 0.5);
+  box-shadow: 0 0 0 3px rgba(218, 165, 32, 0.1);
+}
+
+.search-input:focus+.search-icon,
+.search-container:focus-within .search-icon {
+  color: #DAA520;
+}
+
+/* ========================================== */
+/* COMPACTAR BANNER NO CELULAR (HERO)         */
+/* ========================================== */
+@media (max-width: 768px) {
+  .gallery-hero {
+    padding: 40px 15px;
+    /* Reduz o espaço em cima e embaixo */
+  }
+
+  .gallery-hero h1 {
+    font-size: 26px;
+    /* Evita que o título ocupe 3 linhas */
+    margin-bottom: 8px;
+  }
+
+  .gallery-hero p {
+    font-size: 14px;
+  }
+
+  .search-container {
+    margin-bottom: 20px;
+  }
+}
+
 @media (max-width: 480px) {
+
   .gallery-header img,
   .gallery-header svg {
     height: 50px;

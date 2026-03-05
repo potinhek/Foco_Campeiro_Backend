@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { MapPin, CalendarBlank, ArrowRight, CameraSlash, MagnifyingGlass} from '@phosphor-icons/react';
 import { supabase } from '../../config/supabase';
 import './PublicGallery.css';
-import { Logo } from '../../components/Logo/Logo';
+import { Brand } from '../../components/Brand/Brand';
 
 export function PublicGallery() {
   const navigate = useNavigate();
@@ -43,7 +43,7 @@ export function PublicGallery() {
       {/* --- CABEÇALHO --- */}
       <header className="gallery-header">
         {/* Logo sem height fixo, controlado pelo CSS */}
-        <Logo />
+        <Brand />
 
         <button
           className="btn-photographer"
@@ -90,7 +90,7 @@ export function PublicGallery() {
                     <img src={event.image_url} alt={event.name} />
                   ) : (
                     <div className="img-placeholder">
-                      <Logo />
+                      <Brand />
                     </div>
                   )}
                 </div>

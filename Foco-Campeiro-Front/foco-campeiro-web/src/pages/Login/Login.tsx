@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Envelope, Lock } from '@phosphor-icons/react';
 import './Login.css';
 import { supabase } from '../../config/supabase'; // A nossa conexão nova
-import { Logo } from '../../components/Logo/Logo'; // Vamos usar teu componente novo aqui também!
+import { Brand } from '../../components/Brand/Brand';
 
 export function Login() {
   const navigate = useNavigate();
@@ -52,8 +52,8 @@ export function Login() {
       <div className="login-card">
 
         {/* Usando teu Componente Logo novo para ficar padrão */}
-        <div className="logo-area" style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-          <Logo height={70} />
+        <div className="logo-area">
+          <Brand />
         </div>
 
         <h2 className="login-title">Acesse sua conta</h2>

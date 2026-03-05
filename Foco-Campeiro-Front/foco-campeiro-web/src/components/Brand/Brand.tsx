@@ -1,5 +1,5 @@
 import './Brand.css';
-import logoImg from '../../assets/logo-dourada.png';
+import logoImg from '../../assets/vasion.png';
 // 1. A interface diz apenas QUAIS informações o componente pode receber
 interface BrandProps {
     logoUrl?: string;

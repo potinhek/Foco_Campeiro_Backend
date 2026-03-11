@@ -71,34 +71,12 @@ export function EventDetails() {
 
   
   
-
-  async function handleDeletePhoto(photoId: number, imageUrl: string) {
-    
+async function handleDeletePhoto(photoId: number) {
     const confirmDelete = window.confirm("Tem certeza que quer apagar essa foto permanentemente?");
     if (!confirmDelete) return;
 
     try {
-      // --- PASSO 1: Apagar o arquivo físico no Storage ---
-      
-      // A URL vem inteira (ex: https://.../event-photos/arquivo.jpg)
-      // Precisamos pegar só o final: "arquivo.jpg"
-      // O split quebra a URL onde aparece o nome do bucket
-      const path = imageUrl.split('/event-photos/')[1];
-
-      if (path) {
-        // O comando .remove espera uma LISTA de caminhos
-        const { error: storageError } = await supabase.storage
-          .from('event-photos') // <--- CONFIRA SE O NOME DO BUCKET É ESSE MESMO
-          .remove([path]);
-        
-        if (storageError) {
-          console.warn("Aviso: Erro ao apagar do storage (talvez já não exista), seguindo para o banco...", storageError);
-        } else {
-          console.log("Arquivo apagado do Storage com sucesso!");
-        }
-      }
-
-      // --- PASSO 2: Apagar a linha no Banco de Dados ---
+      // Deletamos apenas o registro no Banco de Dados (Supabase)
       const { error: dbError } = await supabase
         .from('photos')
         .delete()
@@ -106,15 +84,11 @@ export function EventDetails() {
 
       if (dbError) throw dbError;
 
-      // --- PASSO 3: Atualizar a Tela ---
-      // Removemos da lista visualmente para não precisar recarregar tudo
+      // Remove a foto da tela na hora
       setPhotos(currentPhotos => currentPhotos.filter(photo => photo.id !== photoId));
-      
-      // Opcional: Feedback visual
-      // alert("Foto excluída!"); 
 
     } catch (error) {
-      console.error("Erro fatal ao excluir:", error);
+      console.error("Erro ao excluir:", error);
       alert("Houve um erro ao tentar excluir a foto.");
     }
   }
@@ -214,7 +188,7 @@ export function EventDetails() {
               </span>
               <button
                 className="photo-delete-btn"
-                onClick={() => handleDeletePhoto(photo.id, photo.image_url)} // <--- Passa a URL aqui
+                onClick={() => handleDeletePhoto(photo.id)}// <--- Passa a URL aqui
               >
                 <Trash size={16} color="#ff4444" />
               </button>

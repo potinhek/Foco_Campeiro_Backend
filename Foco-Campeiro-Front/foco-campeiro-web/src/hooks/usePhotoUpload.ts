@@ -1,13 +1,24 @@
 import { useState } from 'react';
 import { supabase } from '../config/supabase';
 import { processImage } from '../utils/imageProcessor';
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
-// Esse Hook recebe o ID do evento e uma função para recarregar a tela quando acabar
+// 1. Configuração do Cliente R2 (S3)
+const r2Client = new S3Client({
+  region: "auto",
+  endpoint: import.meta.env.VITE_R2_ENDPOINT,
+  credentials: {
+    accessKeyId: import.meta.env.VITE_R2_ACCESS_KEY_ID,
+    secretAccessKey: import.meta.env.VITE_R2_SECRET_ACCESS_KEY,
+  },
+});
+
 export function usePhotoUpload(eventId: number, onUploadSuccess: () => void) {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
 
   async function handleUpload(files: FileList | null) {
+    console.log("ID do Evento:", eventId, "Fotos:", files);
     if (!files || !eventId) return;
     
     setUploading(true);
@@ -22,23 +33,28 @@ export function usePhotoUpload(eventId: number, onUploadSuccess: () => void) {
 
         await Promise.all(chunk.map(async (file) => {
           try {
+            // A. Processamento (Marca d'água/Redimensionamento)
             const processedBlob = await processImage(file);
             const cleanName = file.name.replace(/\.[^/.]+$/, "").replace(/[^a-z0-9]/gi, '_');
             const fileName = `${Date.now()}_${cleanName}.jpg`;
 
-            const { error: uploadError } = await supabase.storage
-              .from('event-photos')
-              .upload(fileName, processedBlob);
+            // B. NOVO PASSO: Upload para o Cloudflare R2
+            const uploadCommand = new PutObjectCommand({
+              Bucket: import.meta.env.VITE_R2_BUCKET_NAME,
+              Key: fileName,
+              Body: new Uint8Array(await processedBlob.arrayBuffer()),
+              ContentType: 'image/jpeg',
+            });
 
-            if (uploadError) throw uploadError;
+            await r2Client.send(uploadCommand);
 
-            const { data } = supabase.storage
-              .from('event-photos')
-              .getPublicUrl(fileName);
+            // C. GERAR URL: No R2 a gente monta a URL manualmente
+            const publicUrl = `${import.meta.env.VITE_R2_PUBLIC_URL}/${fileName}`;
 
+            // D. Salvar a referência no Banco de Dados (Supabase)
             await supabase.from('photos').insert({
               event_id: eventId,
-              image_url: data.publicUrl,
+              image_url: publicUrl, // Agora aponta para o R2!
               original_name: file.name
             });
 
@@ -50,8 +66,8 @@ export function usePhotoUpload(eventId: number, onUploadSuccess: () => void) {
         }));
       }
 
-      await onUploadSuccess(); // Chama o loadData do pai
-      alert('Sucesso!');
+      await onUploadSuccess(); 
+      alert('Upload para o R2 concluído com sucesso!');
 
     } catch (error) {
       console.error(error);
@@ -62,6 +78,5 @@ export function usePhotoUpload(eventId: number, onUploadSuccess: () => void) {
     }
   }
 
-  // O Hook devolve as ferramentas para quem quiser usar
   return { uploading, progress, handleUpload };
 }

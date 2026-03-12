@@ -43,4 +43,5 @@ function App() {
   );
 }
 // Build de segurança 3
+// Atualizando build para novas chaves R2
 export default App;

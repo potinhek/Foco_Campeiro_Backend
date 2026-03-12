@@ -42,5 +42,5 @@ function App() {
     </BrowserRouter>
   );
 }
-
+// Build de segurança 3
 export default App;

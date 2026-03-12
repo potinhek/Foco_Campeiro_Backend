@@ -9,6 +9,8 @@ import { MyOrders } from './pages/Dashboard/MyOrders/MyOrders';
 import { PrivateRouter } from './components/PrivateRouter/PrivateRouter'; // Importação correta
 import { Settings } from './pages/Settings/Settings';
 function App() {
+          alert(import.meta.env.VITE_R2_ACCESS_KEY_ID ? "A CLOUDFLARE ENVIOU A CHAVE!" : "A CHAVE ESTÁ VAZIA NO SITE!");
+
   return (
     <BrowserRouter>
       <Routes>

@@ -1,17 +1,8 @@
 import { useState } from 'react';
 import { supabase } from '../config/supabase';
 import { processImage } from '../utils/imageProcessor';
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
-// 1. Configuração do Cliente R2 (S3)
-const r2Client = new S3Client({
-  region: "auto",
-  endpoint: import.meta.env.VITE_R2_ENDPOINT,
-  credentials: {
-    accessKeyId: import.meta.env.VITE_R2_ACCESS_KEY_ID,
-    secretAccessKey: import.meta.env.VITE_R2_SECRET_ACCESS_KEY,
-  },
-});
+// Agora com TypeScript 100% tipado! 🛡️
 
 export function usePhotoUpload(eventId: number, onUploadSuccess: () => void) {
   const [uploading, setUploading] = useState(false);
@@ -29,32 +20,42 @@ export function usePhotoUpload(eventId: number, onUploadSuccess: () => void) {
 
     try {
       for (let i = 0; i < totalFiles; i += BATCH_SIZE) {
-        const chunk = Array.from(files).slice(i, i + BATCH_SIZE);
+        // Garantindo para o TS que isso é um Array de arquivos (Files)
+        const chunk = Array.from(files).slice(i, i + BATCH_SIZE) as File[];
 
-        await Promise.all(chunk.map(async (file) => {
+        await Promise.all(chunk.map(async (file: File) => {
           try {
-            // A. Processamento (Marca d'água/Redimensionamento)
             const processedBlob = await processImage(file);
             const cleanName = file.name.replace(/\.[^/.]+$/, "").replace(/[^a-z0-9]/gi, '_');
-            const fileName = `${Date.now()}_${cleanName}.jpg`;
+            const finalFileName = `${Date.now()}-${cleanName}.jpg`; 
 
-            // B. NOVO PASSO: Upload para o Cloudflare R2
-            const uploadCommand = new PutObjectCommand({
-              Bucket: import.meta.env.VITE_R2_BUCKET_NAME,
-              Key: fileName,
-              Body: new Uint8Array(await processedBlob.arrayBuffer()),
-              ContentType: 'image/jpeg',
+            // Pedir o "Ticket VIP" para a nossa Cloudflare Function
+            const ticketResponse = await fetch('/get-upload-url', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                filename: finalFileName,
+                fileType: 'image/jpeg'
+              })
             });
 
-            await r2Client.send(uploadCommand);
+            if (!ticketResponse.ok) throw new Error("Falha ao pegar permissão da Cloudflare");
+            
+            const { url: uploadUrl } = await ticketResponse.json();
 
-            // C. GERAR URL: No R2 a gente monta a URL manualmente
-            const publicUrl = `${import.meta.env.VITE_R2_PUBLIC_URL}/${fileName}`;
+            // Upload DIRETO para a Cloudflare R2 usando o Ticket
+            await fetch(uploadUrl, {
+              method: 'PUT',
+              body: processedBlob,
+              headers: { 'Content-Type': 'image/jpeg' }
+            });
 
-            // D. Salvar a referência no Banco de Dados (Supabase)
+            // Salvar no Banco
+            const publicUrl = `${import.meta.env.VITE_R2_PUBLIC_URL}/${finalFileName}`;
+
             await supabase.from('photos').insert({
               event_id: eventId,
-              image_url: publicUrl, // Agora aponta para o R2!
+              image_url: publicUrl,
               original_name: file.name
             });
 
@@ -67,7 +68,7 @@ export function usePhotoUpload(eventId: number, onUploadSuccess: () => void) {
       }
 
       await onUploadSuccess(); 
-      alert('Upload para o R2 concluído com sucesso!');
+      alert('Upload concluído com sucesso e segurança máxima!');
 
     } catch (error) {
       console.error(error);

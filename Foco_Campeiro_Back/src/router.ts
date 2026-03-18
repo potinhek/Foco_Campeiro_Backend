@@ -7,6 +7,7 @@ import { OrderController } from "./controllers/OrderController";
 import { PhotoController } from "./controllers/PhotoController";
 import { SelectionController } from "./controllers/SelectionController";
 import { UserController } from "./controllers/UserController";
+import { UploadController } from "./services/UploadController"; // Certifique-se que o nome e caminho batem
 // Importe a config do multer
 import { multerConfig } from "./config/multer";
 
@@ -19,8 +20,10 @@ const orderController = new OrderController();
 const photoController = new PhotoController();
 const selectionController = new SelectionController();
 const userController = new UserController();
+const uploadController = new UploadController();
 
 /* ===== Rotas públicas ===== */
+
 router.post("/auth/register", authController.register);
 router.post("/auth/login", authController.login);
 router.post("/auth/refresh", authController.refresh);
@@ -52,13 +55,9 @@ router.delete("/orders/:id", requireAuth, orderController.delete);
 router.get("/photos", requireAuth, photoController.index);
 router.get("/photos/:id", requireAuth, photoController.read);
 
-// --- ROTA COM UPLOAD (Corrigida e Posicionada) ---
 router.post(
-  "/photos", 
-  requireAuth, 
-  requireRole("admin"), 
-  multerConfig.single("file"), // Middleware de Upload
-  photoController.create
+  "/photos/upload-url", 
+  uploadController.getPreSignedUrl 
 );
 
 router.put("/photos/:id", requireAuth, requireRole("admin"), photoController.update);

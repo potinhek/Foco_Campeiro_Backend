@@ -25,3 +25,5 @@ dist-ssr
 
 # Ignorar senhas e chaves secretas
 .env
+
+.dev.vars

@@ -91,7 +91,7 @@ export function PublicEvent() {
           .from('photos')
           .select('*')
           .eq('event_id', eventData.id)
-          .limit(100);
+          .order('id', { ascending: false });
 
         if (photosError) throw photosError;
         setPhotos(photosData || []);

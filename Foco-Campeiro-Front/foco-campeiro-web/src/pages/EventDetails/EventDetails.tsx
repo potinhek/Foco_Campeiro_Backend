@@ -172,7 +172,7 @@ async function handleDeletePhoto(photoId: number) {
         )}
       </div>
 
-      <div className="gallery-section">
+      <div className="gallery-section"> 
         <h3 className="gallery-title">Galeria de Fotos (Admin)</h3>
         {photos.length === 0 && (
           <p style={{ color: '#666', textAlign: 'center', padding: '20px' }}>

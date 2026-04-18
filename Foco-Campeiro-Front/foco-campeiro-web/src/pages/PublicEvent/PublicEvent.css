@@ -39,9 +39,11 @@ html, body {
     padding: 1rem 2rem;
     background: #000;
     border-bottom: 1px solid #333;
-    position: sticky;
+    position: fixed;
     top: 0;
-    z-index: 100;
+    left: 0;
+    width: 100%;
+    z-index: 9999;
 }
 
 .brand-wrapper {
@@ -89,6 +91,7 @@ html, body {
 
 /* --- HERO (CAPA DO EVENTO) --- */
 .pe-hero {
+    margin-top: 80px; 
     background-size: cover;
     background-position: center;
     background-color: #222;

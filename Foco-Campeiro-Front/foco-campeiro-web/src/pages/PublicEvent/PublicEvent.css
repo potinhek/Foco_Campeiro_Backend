@@ -6,14 +6,15 @@
     margin: 0;
     padding: 0;
     touch-action: pan-y;
-}   
+}
 
-html, body {
+html,
+body {
     width: 100%;
     max-width: 100%;
     overflow-x: hidden;
     position: relative;
-    background-color: #050505;  
+    background-color: #050505;
 }
 
 .public-event-container {
@@ -84,6 +85,7 @@ html, body {
     gap: 5px;
     transition: transform 0.2s;
 }
+
 .header-btn-cart:hover {
     transform: scale(1.05);
     background: #FFD700;
@@ -91,42 +93,59 @@ html, body {
 
 /* --- HERO (CAPA DO EVENTO) --- */
 .pe-hero {
-    margin-top: 80px; 
+    margin-top: 80px;
     background-size: cover;
     background-position: center;
-    background-color: #222;
-    padding: 60px 20px;
+    background-color: #111;
+    padding: 44px 20px;
     text-align: center;
     color: white;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid #222;
 }
 
 .pe-hero h1 {
-    font-size: 2.5rem;
-    margin-bottom: 10px;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.1;
+    margin-bottom: 14px;
+    text-shadow: 0 3px 12px rgba(0, 0, 0, 0.9);
 }
 
 .pe-hero-meta {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    color: #ccc;
-    background: rgba(0,0,0,0.5);
     display: inline-flex;
-    padding: 5px 15px;
-    border-radius: 20px;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    color: #ddd;
+    background: rgba(0, 0, 0, 0.55);
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.pe-hero-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .price-highlight {
-    margin-top: 20px;
+    margin-top: 16px;
+    color: #ddd;
+    font-size: 1rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.price-highlight strong {
     color: #DAA520;
-    font-size: 1.1rem;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    font-size: 1.12rem;
 }
 
 /* --- GRID DE FOTOS --- */
-.back-nav { padding: 0 40px 20px 40px; }
+.back-nav {
+    padding: 0 40px 20px 40px;
+}
+
 .back-link {
     color: #aaa;
     text-decoration: none;
@@ -135,7 +154,10 @@ html, body {
     gap: 5px;
     transition: color 0.2s;
 }
-.back-link:hover { color: #DAA520; }
+
+.back-link:hover {
+    color: #DAA520;
+}
 
 .pe-grid {
     display: grid;
@@ -148,8 +170,17 @@ html, body {
     position: relative;
     aspect-ratio: 1/1;
     overflow: hidden;
-    border-radius: 8px;
-    border: 1px solid #333;
+    border-radius: 12px;
+    border: 1px solid #2a2a2a;
+    background: #111;
+    cursor: pointer;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.photo-card-wrapper:hover {
+    transform: translateY(-3px);
+    border-color: rgba(218, 165, 32, 0.65);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
 }
 
 .photo-card-img {
@@ -158,13 +189,17 @@ html, body {
     object-fit: cover;
     transition: transform 0.3s;
 }
-.photo-card-wrapper:hover .photo-card-img { transform: scale(1.05); }
+
+.photo-card-wrapper:hover .photo-card-img {
+    transform: scale(1.05);
+    filter: brightness(0.85);
+}
 
 .photo-name-tag {
     position: absolute;
     bottom: 5px;
     left: 5px;
-    background: rgba(0,0,0,0.6);
+    background: rgba(0, 0, 0, 0.6);
     color: white;
     font-size: 10px;
     padding: 2px 5px;
@@ -179,86 +214,35 @@ html, body {
     right: 10px;
     border: none;
     border-radius: 50%;
-    width: 35px;
-    height: 35px;
+    width: 38px;
+    height: 38px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-    transition: transform 0.2s;
-}
-.btn-add-cart:active { transform: scale(0.9); }
-.btn-add-cart.added { background: #4CAF50; color: white; }
-.btn-add-cart.default { background: #DAA520; color: black; }
-
-/* --- LIGHTBOX (VISUALIZAÇÃO DE FOTO GRANDE) --- */
-.lightbox-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.95);
-    z-index: 2000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    backdrop-filter: blur(5px);
-    animation: fadeIn 0.2s;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45);
+    transition: transform 0.2s ease, filter 0.2s ease;
 }
 
-.lightbox-content {
-    position: relative;
-    max-width: 90%;
-    max-height: 90%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.btn-add-cart:hover {
+    transform: scale(1.08);
+    filter: brightness(1.08);
 }
 
-.lightbox-img {
-    max-width: 100%;
-    max-height: 80vh;
-    object-fit: contain;
-    border-radius: 4px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+.btn-add-cart:active {
+    transform: scale(0.95);
 }
 
-.lightbox-close {
-    position: absolute;
-    top: -40px;
-    right: 0;
-    background: transparent;
-    border: none;
+.btn-add-cart.added {
+    background: #4CAF50;
     color: white;
-    cursor: pointer;
-    transition: transform 0.2s;
-}
-.lightbox-close:hover { transform: scale(1.2); color: #ff4444; }
-
-.lightbox-actions {
-    margin-top: 20px;
-    display: flex;
-    gap: 15px;
-    align-items: center;
 }
 
-.btn-add-large {
+.btn-add-cart.default {
     background: #DAA520;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 30px;
-    font-weight: bold;
-    font-size: 16px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
     color: black;
-    transition: transform 0.2s;
 }
-.btn-add-large:hover { transform: scale(1.05); background: #FFD700; }
+
 
 /* --- UTILITÁRIOS --- */
 .no-select {
@@ -282,7 +266,7 @@ img {
     color: white;
     padding: 12px 24px;
     border-radius: 50px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     display: flex;
     align-items: center;
     gap: 10px;
@@ -294,11 +278,15 @@ img {
 /* --- MODAL DE CHECKOUT (FORMULÁRIO DE DADOS) --- */
 .modal-overlay {
     position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.85);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
     z-index: 3000;
-    display: flex; justify-content: center; align-items: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     padding: 20px;
     backdrop-filter: blur(5px);
     animation: fadeIn 0.2s;
@@ -310,26 +298,57 @@ img {
     max-width: 450px;
     border-radius: 12px;
     padding: 25px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
     border: 1px solid #333;
     color: white;
 }
 
 .checkout-header {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #333;
+    padding-bottom: 10px;
 }
-.checkout-header h2 { font-size: 1.4rem; color: #DAA520; margin: 0; }
-.close-modal-btn { background: none; border: none; color: #aaa; cursor: pointer; }
-.close-modal-btn:hover { color: white; }
 
-.checkout-info { font-size: 0.95rem; color: #ccc; margin-bottom: 20px; }
+.checkout-header h2 {
+    font-size: 1.4rem;
+    color: #DAA520;
+    margin: 0;
+}
 
-.form-group { margin-bottom: 15px; }
+.close-modal-btn {
+    background: none;
+    border: none;
+    color: #aaa;
+    cursor: pointer;
+}
+
+.close-modal-btn:hover {
+    color: white;
+}
+
+.checkout-info {
+    font-size: 0.95rem;
+    color: #ccc;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
 .form-group label {
-    display: flex; align-items: center; gap: 8px;
-    color: #DAA520; font-weight: bold; font-size: 0.9rem; margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #DAA520;
+    font-weight: bold;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
 }
+
 .form-group input {
     width: 100%;
     padding: 12px;
@@ -341,18 +360,27 @@ img {
     outline: none;
     transition: border 0.2s;
 }
-.form-group input:focus { border-color: #DAA520; }
+
+.form-group input:focus {
+    border-color: #DAA520;
+}
 
 .checkout-total-box {
     background: #252525;
     padding: 15px;
     border-radius: 8px;
     border: 1px dashed #444;
-    display: flex; justify-content: space-between; align-items: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin: 20px 0;
     font-size: 1.1rem;
 }
-.checkout-total-box strong { color: #DAA520; font-size: 1.3rem; }
+
+.checkout-total-box strong {
+    color: #DAA520;
+    font-size: 1.3rem;
+}
 
 .btn-send-whatsapp {
     width: 100%;
@@ -364,120 +392,193 @@ img {
     font-weight: bold;
     font-size: 1.1rem;
     cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
     transition: background 0.2s;
 }
-.btn-send-whatsapp:hover { background: #128C7E; }
+
+.btn-send-whatsapp:hover {
+    background: #128C7E;
+}
+
+.photo-card-wrapper.selected {
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.35);
+}
 
 /* --- ANIMAÇÕES --- */
 @keyframes slideDownFade {
-    from { opacity: 0; transform: translate(-50%, -20px); }
-    to { opacity: 1; transform: translate(-50%, 0); }
+    from {
+        opacity: 0;
+        transform: translate(-50%, -20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
 }
-@keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
 
 /* Proteção contra impressão */
 @media print {
-  body { display: none !important; }
+    body {
+        display: none !important;
+    }
+}
+
+.gallery-intro {
+    padding: 0 40px 20px 40px;
+}
+
+.gallery-intro-text {
+    margin-top: 18px;
+}
+
+.gallery-intro-text h2 {
+    color: white;
+    font-size: 1.5rem;
+    margin-bottom: 4px;
+}
+
+.gallery-intro-text p {
+    color: #888;
+    font-size: 0.95rem;
 }
 
 /* --- RESPONSIVIDADE --- */
 @media (max-width: 768px) {
-    /* 1. CABEÇALHO (Header) - Desapertando os itens */
     .pe-header {
         padding: 10px 15px;
         gap: 10px;
     }
 
-    /* Trava o tamanho máximo da logo+nome para não esmagar o botão */
     .brand-wrapper {
-        max-width: 65%; 
-        overflow: hidden; 
+        max-width: 65%;
+        overflow: hidden;
     }
 
     .brand-wrapper img,
     .brand-wrapper svg {
-        height: 30px; 
-        min-width: 30px; 
+        height: 30px;
+        min-width: 30px;
     }
 
-    /* Força o nome do fotógrafo a diminuir e colocar '...' se for muito grande */
-    .brand-wrapper h1, 
-    .brand-wrapper h2, 
+    .brand-wrapper h1,
+    .brand-wrapper h2,
     .brand-wrapper span {
         font-size: 1rem !important;
         white-space: nowrap;
         overflow: hidden;
-        text-overflow: ellipsis; 
+        text-overflow: ellipsis;
     }
 
-    /* 2. BOTÃO DO CARRINHO COMPACTO */
     .header-btn-cart {
         padding: 6px 10px;
-        flex-shrink: 0; 
+        flex-shrink: 0;
     }
 
-    
     .cart-text {
         display: none;
     }
 
-    /* 2. CAPA DO EVENTO (Hero) */
-    .pe-hero {
-        padding: 30px 15px; 
-    }
-    
-    .pe-hero h1 {
-        font-size: 1.6rem;
+    .gallery-intro {
+        padding: 15px 10px 10px 10px;
     }
 
-    /* 3. PÍLULAS DE DATA E LOCAL - Organizando a quebra */
-    .pe-hero-meta {
-        flex-direction: column; 
-        gap: 8px;
-        border-radius: 8px; 
-        width: 100%;
-        max-width: 250px; 
-        padding: 10px;
+    .gallery-intro-text {
+        margin-top: 14px;
     }
 
-    .price-highlight {
-        font-size: 1rem;
-        margin-top: 15px;
+    .gallery-intro-text h2 {
+        font-size: 1.35rem;
     }
 
-    /* 4. BOTÃO DE VOLTAR - Alinhando com as fotos */
+    .gallery-intro-text p {
+        font-size: 0.9rem;
+    }
+
     .back-nav {
-        padding: 15px 10px 10px 10px; /* Tira aquele espaço vazio enorme da esquerda */
+        padding: 15px 10px 10px 10px;
     }
 
     .back-link {
         font-size: 0.9rem;
     }
 
-    /* 5. GRID DE FOTOS */
     .pe-grid {
-        grid-template-columns: repeat(2, 1fr); 
-        gap: 8px; 
-        padding: 0 10px; 
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        padding: 0 10px;
     }
 
-    /* 6. LIMPEZA DA FOTO - Esconde o nome do arquivo longo no celular */
     .photo-name-tag {
-        display: none; /* Deixa o grid super limpo, focando só na imagem e no botão */
+        display: none;
     }
 
-    /* Ajuste: Botão de adicionar (+) menor no celular */
     .btn-add-cart {
         width: 32px;
         height: 32px;
         bottom: 5px;
         right: 5px;
     }
-    
+
     .btn-add-cart svg {
         width: 16px;
         height: 16px;
+    }
+
+    .lightbox-overlay {
+        padding: 16px;
+        align-items: center;
+    }
+
+    .lightbox-content {
+        max-height: 94vh;
+    }
+
+    .lightbox-img {
+        max-height: 66vh;
+        border-radius: 10px;
+    }
+
+    .lightbox-close {
+        top: -46px;
+        right: 0;
+        width: 40px;
+        height: 40px;
+    }
+
+    .lightbox-actions {
+        margin-top: 14px;
+        width: 100%;
+        justify-content: space-between;
+        padding: 0 4px;
+    }
+
+    .btn-add-large {
+        padding: 11px 18px;
+        font-size: 14px;
     }
 }

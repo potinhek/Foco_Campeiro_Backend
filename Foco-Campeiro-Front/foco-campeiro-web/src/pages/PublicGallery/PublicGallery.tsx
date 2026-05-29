@@ -207,7 +207,7 @@ export function PublicGallery() {
 
           <div className="step-card">
             <strong>3. Receba em alta qualidade</strong>
-            <span>Após a compra, suas fotos ficam disponíveis para download.</span>
+            <span>Após a compra, suas foto serão entregues em alta resolução diretamente no seu WhatsApp.</span>
           </div>
         </div>
       </section>

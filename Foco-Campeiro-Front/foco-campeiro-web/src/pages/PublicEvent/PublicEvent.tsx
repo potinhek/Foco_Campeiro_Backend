@@ -148,18 +148,18 @@ export function PublicEvent() {
   const hasPackages = event.pricing?.packages?.length > 0;
 
   const getCleanWhatsapp = () => {
-  // 1. Tenta pegar da organização. Se não tiver, tenta do evento (fallback)
-  const raw = event?.organizations?.whatsapp || ""; 
-  
-  // 2. Remove parênteses, traços e espaços (deixa só números)
-  const clean = raw.replace(/\D/g, ''); 
-  
-  // 3. Segurança: Se estiver vazio, retorna vazio
-  if (!clean) return ""; 
+    // 1. Tenta pegar da organização. Se não tiver, tenta do evento (fallback)
+    const raw = event?.organizations?.whatsapp || "";
 
-  // 4. Se já começar com 55, usa ele. Se não, adiciona o 55 na frente.
-  return clean.startsWith('55') ? clean : `55${clean}`;
-}
+    // 2. Remove parênteses, traços e espaços (deixa só números)
+    const clean = raw.replace(/\D/g, '');
+
+    // 3. Segurança: Se estiver vazio, retorna vazio
+    if (!clean) return "";
+
+    // 4. Se já começar com 55, usa ele. Se não, adiciona o 55 na frente.
+    return clean.startsWith('55') ? clean : `55${clean}`;
+  }
   return (
     <div className="public-event-container no-select" onContextMenu={(e) => e.preventDefault()}>
 
@@ -207,10 +207,15 @@ export function PublicEvent() {
         </p>
       </div>
 
-      <div className="back-nav">
+      <div className="gallery-intro">
         <Link to="/galeria" className="back-link">
           <ArrowLeft size={20} /> Voltar para lista de eventos
         </Link>
+
+        <div className="gallery-intro-text">
+          <h2>Escolha suas fotos</h2>
+          <p>{photos.length} fotos disponíveis neste evento</p>
+        </div>
       </div>
 
       {/* GRID DE FOTOS */}
@@ -218,7 +223,10 @@ export function PublicEvent() {
         {photos.map((photo) => {
           const isAdded = cart.find((i) => i.id === photo.id);
           return (
-            <div key={photo.id} className="photo-card-wrapper">
+            <div
+              key={photo.id}
+              className={`photo-card-wrapper ${isAdded ? 'selected' : ''}`}
+            >
               <img
                 src={photo.image_url}
                 alt="Foto"
@@ -254,7 +262,7 @@ export function PublicEvent() {
         eventData={{
           id: event.id,
           name: event.name,
-          whatsapp: getCleanWhatsapp(), 
+          whatsapp: getCleanWhatsapp(),
           pricing: event.pricing,
           companyName: event.organizations?.name || "Empresa não informada"
         }}

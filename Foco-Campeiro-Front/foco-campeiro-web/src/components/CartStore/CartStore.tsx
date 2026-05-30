@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Trash, WhatsappLogo, Tag } from '@phosphor-icons/react';
 import './CartStore.css';
 import { CheckoutModal, type CustomerData } from '../CheckoutModal/CheckoutModal';
@@ -237,12 +238,19 @@ export function CartStore({
         )}
       </aside>
 
+{isCheckoutOpen &&
+  createPortal(
+    <div className="checkout-portal-layer">
       <CheckoutModal 
         isOpen={isCheckoutOpen}
         onClose={() => setIsCheckoutOpen(false)}
         onConfirm={handleProcessOrder}
         isSubmitting={isSubmitting}
       />
+    </div>,
+    document.body
+  )
+}
     </>
   );
 }

@@ -1,18 +1,17 @@
 /* src/components/CartStore/CartStore.css */
 
-/* --- 1. FUNDO ESCURO (OVERLAY) --- */
+/* --- FUNDO ESCURO --- */
 .cart-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.7);
-  z-index: 999;
+  height: 100dvh;
+  background-color: rgba(0, 0, 0, 0.72);
+  z-index: 13000;
   opacity: 0;
   visibility: hidden;
-  transition: all 0.3s;
-  backdrop-filter: blur(2px);
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+  backdrop-filter: blur(4px);
 }
 
 .cart-overlay.open {
@@ -20,198 +19,388 @@
   visibility: visible;
 }
 
-/* --- 2. A GAVETA (ESTRUTURA PRINCIPAL) --- */
+/* --- GAVETA DO CARRINHO --- */
 .cart-store {
   position: fixed;
   top: 0;
-  bottom: 0; 
   right: 0;
-  
-  /* Regras de Desktop (Padrão) */
-  width: 85%; 
-  max-width: 380px;
-  height: 100%; /* Garante que ocupe a altura toda no PC */
-  
+  bottom: 0;
+
+  width: 90%;
+  max-width: 430px;
+  height: 100dvh;
+
   background-color: #111;
   border-left: 1px solid #333;
-  box-shadow: -5px 0 20px rgba(0,0,0,0.9);
-  z-index: 1000;
-  
-  /* Animação de Entrada */
+  box-shadow: -8px 0 28px rgba(0, 0, 0, 0.9);
+  z-index: 13001;
+
   transform: translateX(100%);
-  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  
-  /* Layout Flex (O Segredo do Rodapé Fixo) */
-  display: flex;
-  flex-direction: column;
+  transition: transform 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+
+  overflow: hidden;
 }
 
 .cart-store.open {
   transform: translateX(0);
 }
 
-/* --- 3. CABEÇALHO --- */
+/* --- CABEÇALHO --- */
 .cart-header {
-  flex-shrink: 0; /* Impede de encolher */
-  padding: 20px;
+  padding: 18px 24px;
   border-bottom: 1px solid #222;
+
   display: flex;
   justify-content: space-between;
   align-items: center;
+
   background-color: #0a0a0a;
-  min-height: 70px;
+  min-height: 72px;
 }
 
 .cart-title {
-  font-family: 'Rye', serif;
-  color: #DAA520;
-  font-size: 18px;
+  color: #daa520;
+  font-size: 20px;
+  font-weight: 800;
   margin: 0;
+  font-family: 'Inter', sans-serif;
 }
 
 .close-btn {
-  background: none;
+  background: transparent;
   border: none;
   color: #888;
   cursor: pointer;
-  padding: 8px;
-  border-radius: 50%;
-  transition: background 0.2s;
-}
-.close-btn:hover { background-color: rgba(255,255,255,0.1); color: #FFF; }
 
-/* --- 4. LISTA DE ITENS (SCROLL) --- */
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+
+.close-btn:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  transform: scale(1.04);
+}
+
+/* --- LISTA COM SCROLL --- */
 .cart-items {
-  flex: 1;              /* Ocupa todo o espaço livre */
-  overflow-y: auto;     /* Scroll apenas aqui */
-  padding: 15px;
+  min-height: 0;
+  overflow-y: auto;
+
+  padding: 18px 20px;
+
   display: flex;
   flex-direction: column;
   gap: 12px;
-  min-height: 0;        
-  
-  /* Melhora a rolagem no iPhone */
-  -webkit-overflow-scrolling: touch; 
+
+  -webkit-overflow-scrolling: touch;
 }
 
-/* Estilo da Barra de Rolagem (Fica mais bonito no Windows) */
-.cart-items::-webkit-scrollbar { width: 6px; }
-.cart-items::-webkit-scrollbar-track { background: #121214; }
-.cart-items::-webkit-scrollbar-thumb { background-color: #333; border-radius: 10px; }
+.cart-items::-webkit-scrollbar {
+  width: 6px;
+}
 
-/* --- 5. CARD DO ITEM --- */
+.cart-items::-webkit-scrollbar-track {
+  background: #121214;
+}
+
+.cart-items::-webkit-scrollbar-thumb {
+  background-color: #333;
+  border-radius: 10px;
+}
+
+/* --- ITEM DO CARRINHO --- */
 .cart-item {
   display: flex;
   align-items: center;
   gap: 12px;
-  background-color: #1a1a1a;
+
+  background-color: #181818;
   padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #333;
-  flex-shrink: 0; /* Garante tamanho fixo */
+
+  border-radius: 12px;
+  border: 1px solid #303030;
+
+  flex-shrink: 0;
 }
 
 .cart-item-img {
-  width: 70px;  /* Tirei o !important, geralmente não precisa se o CSS estiver limpo */
-  height: 70px;
+  width: 72px;
+  height: 72px;
+
   object-fit: cover;
-  border-radius: 6px;
+
+  border-radius: 10px;
   border: 1px solid #333;
-  flex-shrink: 0; /* Garante que a imagem não amasse */
+
+  flex-shrink: 0;
 }
 
 .cart-item-info {
   flex: 1;
+  min-width: 0;
+
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
+
   overflow: hidden;
 }
 
 .item-name {
-  font-size: 14px;
-  color: #FFF;
-  font-weight: 600;
+  font-size: 15px;
+  color: #fff;
+  font-weight: 800;
+
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .item-price {
-  color: #DAA520;
+  color: #daa520;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 700;
 }
 
 .remove-btn {
-  background: rgba(255, 68, 68, 0.1);
-  border: none;
+  background: rgba(255, 68, 68, 0.12);
+  border: 1px solid rgba(255, 68, 68, 0.16);
   color: #ff4444;
+
   cursor: pointer;
-  padding: 8px;
-  border-radius: 6px;
+
+  width: 42px;
+  height: 42px;
+  padding: 0;
+
+  border-radius: 10px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  transition: background 0.2s, transform 0.2s;
 }
 
-/* --- 6. RODAPÉ E BOTÃO --- */
+.remove-btn:hover {
+  background: rgba(255, 68, 68, 0.22);
+  transform: scale(1.04);
+}
+
+/* --- RODAPÉ FIXO DO CARRINHO --- */
 .cart-footer {
-  flex-shrink: 0;
-  padding: 20px;
+  padding: 18px 24px;
+  padding-bottom: calc(18px + env(safe-area-inset-bottom, 10px));
+
   border-top: 1px solid #222;
   background-color: #0a0a0a;
-  z-index: 1002;
-  
-  /* Área segura para iPhone (Funciona Globalmente) */
-  padding-bottom: calc(20px + env(safe-area-inset-bottom, 10px));
+
+  box-shadow: 0 -10px 24px rgba(0, 0, 0, 0.35);
+}
+
+/* --- RESUMO --- */
+.calculation-summary {
+  margin-bottom: 14px;
+  padding: 14px;
+
+  background: rgba(255, 255, 255, 0.03);
+
+  border-radius: 12px;
+  border: 1px dashed #333;
 }
 
 .cart-total {
   display: flex;
   justify-content: space-between;
-  color: #FFF;
+  align-items: center;
+
+  color: #fff;
+
   font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 15px;
+  font-weight: 800;
+
+  margin-bottom: 10px;
 }
 
-/* Classes para os descontos e pacotes */
-.calculation-summary { margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 6px; border: 1px dashed #333; }
-.discount-badge { font-size: 0.85rem; color: #888; margin-bottom: 5px; display: block; }
-.packages-applied { font-size: 0.75rem; color: #DAA520; margin-top: 5px; display: flex; align-items: center; gap: 5px; }
+.cart-total span:last-child,
+.cart-total strong:last-child {
+  color: #00ff7f;
+  font-size: 1.55rem;
+  font-weight: 900;
+}
 
+.discount-badge {
+  font-size: 0.85rem;
+  color: #888;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.packages-applied {
+  font-size: 0.82rem;
+  color: #daa520;
+
+  margin-top: 8px;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  font-weight: 700;
+}
+
+/* --- BOTÃO FINALIZAR --- */
 .btn-finalize {
   width: 100%;
-  background-color: #25D366;
-  color: #FFF;
+
+  background-color: #25d366;
+  color: #fff;
+
   border: none;
-  padding: 14px;
-  border-radius: 8px;
-  font-weight: bold;
+
+  padding: 16px;
+
+  border-radius: 12px;
+
+  font-weight: 900;
   font-size: 16px;
+
   cursor: pointer;
+
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+
+  box-shadow: 0 8px 22px rgba(37, 211, 102, 0.28);
+
+  transition: transform 0.2s, filter 0.2s;
 }
 
-.btn-finalize:active { transform: scale(0.98); }
+.btn-finalize:hover {
+  filter: brightness(1.05);
+  transform: translateY(-2px);
+}
 
-/* --- 7. RESPONSIVIDADE (MOBILE) --- */
-/* Aqui só colocamos o que MUDA no celular */
+.btn-finalize:active {
+  transform: scale(0.98);
+}
+
+/* --- MODAL DE FINALIZAÇÃO ACIMA DO CARRINHO --- */
+.modal-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 14000 !important;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(6px);
+}
+
+.checkout-modal {
+  position: relative;
+  z-index: 14001 !important;
+}
+
+/* --- MOBILE --- */
 @media (max-width: 480px) {
   .cart-store {
-    width: 100%;        
-    max-width: none;    
-    border-left: none;  
-    
-    /* Usa dvh para ignorar a barra de endereço do navegador mobile */
-    height: 100dvh;     
+    width: 100%;
+    max-width: none;
+    border-left: none;
+    height: 100dvh;
   }
 
   .cart-header {
-    padding: 15px; /* Topo mais compacto */
+    padding: 14px 16px;
+    min-height: 64px;
   }
-  
-  /* Não precisa repetir o .cart-footer padding aqui, o global calc() já resolve */
+
+  .cart-title {
+    font-size: 18px;
+  }
+
+  .cart-items {
+    padding: 14px 12px;
+    gap: 10px;
+  }
+
+  .cart-item {
+    padding: 9px;
+    gap: 10px;
+  }
+
+  .cart-item-img {
+    width: 62px;
+    height: 62px;
+  }
+
+  .item-name {
+    font-size: 14px;
+  }
+
+  .remove-btn {
+    width: 38px;
+    height: 38px;
+  }
+
+  .cart-footer {
+    padding: 14px 16px;
+    padding-bottom: calc(14px + env(safe-area-inset-bottom, 10px));
+  }
+
+  .calculation-summary {
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+
+  .cart-total {
+    font-size: 16px;
+  }
+
+  .cart-total span:last-child,
+  .cart-total strong:last-child {
+    font-size: 1.35rem;
+  }
+
+  .btn-finalize {
+    padding: 14px;
+    font-size: 15px;
+  }
 } 
+
+
+/* --- CAMADA GARANTIDA DO CHECKOUT ACIMA DO CARRINHO --- */
+.checkout-portal-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 20000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+}
+
+.checkout-portal-layer .modal-overlay {
+  z-index: 20000 !important;
+}
+
+.checkout-portal-layer .checkout-modal {
+  z-index: 20001 !important;
+}

@@ -37,9 +37,10 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 2rem;
+    height: 72px;
+    padding: 0 36px;
     background: #000;
-    border-bottom: 1px solid #333;
+    border-bottom: 1px solid #222;
     position: fixed;
     top: 0;
     left: 0;
@@ -56,7 +57,7 @@ body {
 /* Controle da Logo */
 .brand-wrapper img,
 .brand-wrapper svg {
-    height: 60px;
+    height: 46px;
     width: auto;
     transition: transform 0.3s ease;
 }
@@ -93,21 +94,21 @@ body {
 
 /* --- HERO (CAPA DO EVENTO) --- */
 .pe-hero {
-    margin-top: 80px;
+    margin-top: 72px;
     background-size: cover;
     background-position: center;
     background-color: #111;
-    padding: 44px 20px;
+    padding: 28px 20px;
     text-align: center;
     color: white;
-    margin-bottom: 24px;
+    margin-bottom: 18px;
     border-bottom: 1px solid #222;
 }
 
 .pe-hero h1 {
-    font-size: clamp(2rem, 4vw, 3rem);
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
     line-height: 1.1;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
     text-shadow: 0 3px 12px rgba(0, 0, 0, 0.9);
 }
 
@@ -449,7 +450,7 @@ img {
 }
 
 .gallery-intro {
-    padding: 0 40px 20px 40px;
+    padding: 0 36px 16px 36px;
 }
 
 .gallery-intro-text {
@@ -469,20 +470,42 @@ img {
 
 /* --- RESPONSIVIDADE --- */
 @media (max-width: 768px) {
+    .public-event-container {
+        padding-top: 58px;
+    }
+
     .pe-header {
-        padding: 10px 15px;
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 9999;
+
+        width: 100%;
+        height: 58px;
+        padding: 0 12px;
         gap: 10px;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        background: #000;
+        border-bottom: 1px solid #222;
     }
 
     .brand-wrapper {
         max-width: 65%;
         overflow: hidden;
+        display: flex;
+        align-items: center;
     }
 
     .brand-wrapper img,
     .brand-wrapper svg {
-        height: 30px;
+        height: 34px;
         min-width: 30px;
+        width: auto;
     }
 
     .brand-wrapper h1,
@@ -497,18 +520,49 @@ img {
     .header-btn-cart {
         padding: 6px 10px;
         flex-shrink: 0;
+        position: relative;
+        z-index: 10000;
     }
 
     .cart-text {
         display: none;
     }
 
+    .pe-hero {
+        margin-top: 0;
+        padding: 24px 14px;
+        margin-bottom: 16px;
+    }
+
+    .pe-hero h1 {
+        font-size: 1.65rem;
+        line-height: 1.15;
+        margin-bottom: 12px;
+    }
+
+    .pe-hero-meta {
+        flex-direction: column;
+        gap: 6px;
+        border-radius: 14px;
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+
+    .price-highlight {
+        margin-top: 12px;
+        font-size: 0.9rem;
+    }
+
+    .price-highlight strong {
+        font-size: 1rem;
+    }
+
     .gallery-intro {
-        padding: 15px 10px 10px 10px;
+        padding: 12px 10px 10px 10px;
     }
 
     .gallery-intro-text {
-        margin-top: 14px;
+        margin-top: 12px;
     }
 
     .gallery-intro-text h2 {
@@ -520,7 +574,7 @@ img {
     }
 
     .back-nav {
-        padding: 15px 10px 10px 10px;
+        padding: 12px 10px 10px 10px;
     }
 
     .back-link {

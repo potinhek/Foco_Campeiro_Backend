@@ -27,6 +27,13 @@ interface Order {
   customer_phone: string;
   total_amount: number;
   status: string;
+
+  events?: {
+    id: number;
+    name: string;
+    date?: string;
+  };
+
   order_items?: {
     photo_name: string;
     price_at_purchase: number;
@@ -39,10 +46,11 @@ export function MyOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
-  const [_updatingId, setUpdatingId] = useState<number | null>(null);
+  const [updatingId, setUpdatingId] = useState<number | null>(null);
 
   const [isChartModalOpen, setIsChartModalOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [selectedEventId, setSelectedEventId] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
@@ -61,9 +69,22 @@ export function MyOrders() {
 
       const { data, error } = await supabase
         .from('orders')
-        .select(
-          '*, order_items (photo_name, price_at_purchase), events!inner (organization_id, organizations!inner (owner_id))'
-        )
+        .select(`
+          *,
+          order_items (
+            photo_name,
+            price_at_purchase
+          ),
+          events!inner (
+            id,
+            name,
+            date,
+            organization_id,
+            organizations!inner (
+              owner_id
+            )
+          )
+        `)
         .eq('events.organizations.owner_id', user.id)
         .order('created_at', { ascending: false });
 
@@ -105,14 +126,36 @@ export function MyOrders() {
     return status !== 'paid' && status !== 'canceled';
   }
 
-  const paidOrders = orders.filter((order) => order.status === 'paid');
+  const eventOptions = useMemo(() => {
+    const eventMap = new Map<number, string>();
+
+    orders.forEach((order) => {
+      if (order.events?.id && order.events?.name) {
+        eventMap.set(order.events.id, order.events.name);
+      }
+    });
+
+    return Array.from(eventMap.entries())
+      .map(([id, name]) => ({ id, name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [orders]);
+
+  const ordersForSummary = useMemo(() => {
+    if (selectedEventId === 'all') return orders;
+
+    return orders.filter(
+      (order) => String(order.events?.id) === selectedEventId
+    );
+  }, [orders, selectedEventId]);
+
+  const paidOrders = ordersForSummary.filter((order) => order.status === 'paid');
 
   const totalRevenue = paidOrders.reduce(
     (sum, order) => sum + order.total_amount,
     0
   );
 
-  const pendingOrdersCount = orders.filter((order) =>
+  const pendingOrdersCount = ordersForSummary.filter((order) =>
     isPendingStatus(order.status)
   ).length;
 
@@ -125,15 +168,20 @@ export function MyOrders() {
         (statusFilter === 'pending' && isPendingStatus(order.status)) ||
         order.status === statusFilter;
 
+      const matchesEvent =
+        selectedEventId === 'all' ||
+        String(order.events?.id) === selectedEventId;
+
       const matchesSearch =
         !search ||
         String(order.id).includes(search) ||
         order.customer_name?.toLowerCase().includes(search) ||
-        order.customer_phone?.toLowerCase().includes(search);
+        order.customer_phone?.toLowerCase().includes(search) ||
+        order.events?.name?.toLowerCase().includes(search);
 
-      return matchesStatus && matchesSearch;
+      return matchesStatus && matchesEvent && matchesSearch;
     });
-  }, [orders, statusFilter, searchTerm]);
+  }, [orders, statusFilter, selectedEventId, searchTerm]);
 
   const chartData = useMemo(() => {
     const chronologicalOrders = [...paidOrders].reverse();
@@ -254,50 +302,68 @@ export function MyOrders() {
                 <h3>Últimos Pedidos</h3>
                 <p>
                   {filteredOrders.length} de {orders.length} pedidos encontrados
+                  {selectedEventId !== 'all' && ' neste evento'}
                 </p>
               </div>
             </div>
 
             <div className="orders-toolbar">
-              <div className="filter-tabs">
-                <button
-                  type="button"
-                  className={statusFilter === 'all' ? 'active' : ''}
-                  onClick={() => setStatusFilter('all')}
-                >
-                  Todos
-                </button>
+              <div className="orders-filters-left">
+                <div className="filter-tabs">
+                  <button
+                    type="button"
+                    className={statusFilter === 'all' ? 'active' : ''}
+                    onClick={() => setStatusFilter('all')}
+                  >
+                    Todos
+                  </button>
 
-                <button
-                  type="button"
-                  className={statusFilter === 'pending' ? 'active' : ''}
-                  onClick={() => setStatusFilter('pending')}
-                >
-                  Pendentes
-                </button>
+                  <button
+                    type="button"
+                    className={statusFilter === 'pending' ? 'active' : ''}
+                    onClick={() => setStatusFilter('pending')}
+                  >
+                    Pendentes
+                  </button>
 
-                <button
-                  type="button"
-                  className={statusFilter === 'paid' ? 'active' : ''}
-                  onClick={() => setStatusFilter('paid')}
-                >
-                  Pagos
-                </button>
+                  <button
+                    type="button"
+                    className={statusFilter === 'paid' ? 'active' : ''}
+                    onClick={() => setStatusFilter('paid')}
+                  >
+                    Pagos
+                  </button>
 
-                <button
-                  type="button"
-                  className={statusFilter === 'canceled' ? 'active' : ''}
-                  onClick={() => setStatusFilter('canceled')}
+                  <button
+                    type="button"
+                    className={statusFilter === 'canceled' ? 'active' : ''}
+                    onClick={() => setStatusFilter('canceled')}
+                  >
+                    Cancelados
+                  </button>
+                </div>
+
+                <select
+                  className="orders-event-filter"
+                  value={selectedEventId}
+                  onChange={(event) => setSelectedEventId(event.target.value)}
                 >
-                  Cancelados
-                </button>
+                  <option value="all">Todos os eventos</option>
+
+                  {eventOptions.map((event) => (
+                    <option key={event.id} value={event.id}>
+                      {event.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="orders-search">
                 <MagnifyingGlass size={18} weight="bold" />
+
                 <input
                   type="text"
-                  placeholder="Buscar cliente, telefone ou pedido..."
+                  placeholder="Buscar cliente, evento, telefone ou pedido..."
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
                 />
@@ -321,6 +387,7 @@ export function MyOrders() {
                   const dateInfo = formatDate(order.created_at);
                   const isExpanded = expandedOrderId === order.id;
                   const itemsCount = order.order_items?.length || 0;
+                  const isUpdating = updatingId === order.id;
 
                   return (
                     <article
@@ -339,6 +406,12 @@ export function MyOrders() {
                           <div className="customer-name">
                             {order.customer_name}
                           </div>
+
+                          {order.events?.name && (
+                            <div className="order-event-name">
+                              {order.events.name}
+                            </div>
+                          )}
 
                           <div className="order-date">
                             <CalendarBlank size={14} />
@@ -387,6 +460,12 @@ export function MyOrders() {
                               <p>
                                 <strong>Telefone:</strong> {order.customer_phone}
                               </p>
+
+                              {order.events?.name && (
+                                <p>
+                                  <strong>Evento:</strong> {order.events.name}
+                                </p>
+                              )}
                             </div>
 
                             <div className="detail-group">
@@ -412,9 +491,10 @@ export function MyOrders() {
                                   type="button"
                                   onClick={() => updateStatus(order.id, 'paid')}
                                   className="btn-action btn-order-confirm"
+                                  disabled={isUpdating}
                                 >
                                   <CheckCircle size={18} />
-                                  Marcar pago
+                                  {isUpdating ? 'Atualizando...' : 'Marcar pago'}
                                 </button>
                               )}
 
@@ -425,9 +505,10 @@ export function MyOrders() {
                                     updateStatus(order.id, 'canceled')
                                   }
                                   className="btn-action btn-order-reject"
+                                  disabled={isUpdating}
                                 >
                                   <XCircle size={18} />
-                                  Cancelar
+                                  {isUpdating ? 'Atualizando...' : 'Cancelar'}
                                 </button>
                               )}
                             </div>

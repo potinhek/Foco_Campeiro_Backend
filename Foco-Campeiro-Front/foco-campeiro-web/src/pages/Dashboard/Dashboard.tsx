@@ -408,8 +408,8 @@ export function Dashboard() {
             <header className="header">
                 <div className="logo-area-dash">
                     <Brand
-                        logoUrl={organization?.logo_url}
-                        name={organization?.name}
+                        logoUrl={organization?.logo_url ?? undefined}
+                        name={organization?.name ?? undefined}
                     />
                 </div>
 

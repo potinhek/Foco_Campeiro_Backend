@@ -25,7 +25,7 @@ export function sendOrderToWhatsApp(data: OrderDetails) {
     .join(', ');
 
   // 2. Define o nome da empresa
-  const nomeEmpresa = eventData.companyName || "FOCO CAMPEIRO";
+  const nomeEmpresa = eventData.companyName || "Vasion Fotografias";
 
   // 3. Monta a Mensagem
   const message = 

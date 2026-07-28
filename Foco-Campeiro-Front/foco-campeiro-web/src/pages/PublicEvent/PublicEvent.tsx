@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type KeyboardEvent } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
   ShoppingCart,
@@ -8,161 +8,120 @@ import {
   MagnifyingGlassPlus,
   CheckCircle
 } from '@phosphor-icons/react';
-import { supabase } from '../../config/supabase';
-import { Brand } from '../../components/Brand/Brand';
-import './PublicEvent.css';
 
-// IMPORTAÇÃO DOS COMPONENTES NOVOS
+import { Brand } from '../../components/Brand/Brand';
 import { Lightbox } from '../../components/Lightbox/Lightbox';
 import { CartStore } from '../../components/CartStore/CartStore';
+
+import type { PublicPhoto } from './types';
+import {
+  formatEventDate,
+  formatMoneyBR,
+  normalizePricing,
+  normalizeWhatsapp
+} from './helpers';
+
+import {
+  PHOTOS_PAGE_SIZE,
+  usePublicEventData
+} from './hooks/usePublicEventData';
+import { usePublicEventCart } from './hooks/usePublicEventCart';
+
+import './PublicEvent.css';
 
 export function PublicEvent() {
   const { slug } = useParams();
 
-  // --- DADOS DO EVENTO ---
-  const [event, setEvent] = useState<any>(null);
-  const [photos, setPhotos] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  // --- CARRINHO ---
-  const [cart, setCart] = useState<any[]>(() => {
-    const savedCart = localStorage.getItem('@FocoCampeiro:cart');
-    return savedCart ? JSON.parse(savedCart) : [];
-  });
-
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [selectedPhoto, setSelectedPhoto] = useState<any>(null);
-
-  // --- PERSISTÊNCIA ---
-  useEffect(() => {
-    localStorage.setItem('@FocoCampeiro:cart', JSON.stringify(cart));
-  }, [cart]);
-
-  // --- LIMPEZA DE CARRINHO AO TROCAR DE EVENTO ---
-  useEffect(() => {
-    if (!slug) return;
-    const lastEventSlug = localStorage.getItem('@FocoCampeiro:last_event_slug');
-
-    if (lastEventSlug && lastEventSlug !== slug) {
-      setCart([]);
-      localStorage.removeItem('@FocoCampeiro:cart');
-    }
-    localStorage.setItem('@FocoCampeiro:last_event_slug', slug);
-  }, [slug]);
-
-  // --- TOAST (MENSAGEM DE SUCESSO) ---
+  const [selectedPhoto, setSelectedPhoto] = useState<PublicPhoto | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  function showToast(msg: string) {
-    setToastMessage(msg);
+
+  const showToast = useCallback((message: string) => {
+    setToastMessage(message);
     setTimeout(() => setToastMessage(null), 3000);
-  }
+  }, []);
 
-  // --- CARREGAMENTO DE DADOS ---
+  const {
+    event,
+    photos,
+    totalPhotos,
+    loading,
+    loadingPhotos,
+    loadingMore,
+    hasMorePhotos,
+    handleLoadMorePhotos
+  } = usePublicEventData(slug, showToast);
+
+  const {
+    cart,
+    addToCart,
+    removeFromCart
+  } = usePublicEventCart(slug, showToast);
+
   useEffect(() => {
-    async function loadData() {
-      if (!slug) return;
-
-      try {
-        setLoading(true);
-
-        let { data: eventData } = await supabase
-          .from('events')
-          .select('*, organizations(name, logo_url, whatsapp)')
-          .eq('slug', slug)
-          .single();
-
-        if (!eventData && !isNaN(Number(slug))) {
-          const { data: eventById } = await supabase
-            .from('events')
-            .select('*, organizations(name, logo_url, whatsapp)')
-            .eq('id', slug)
-            .single();
-          eventData = eventById;
-        }
-
-        if (!eventData) {
-          setLoading(false);
-          return;
-        }
-
-        setEvent(eventData);
-
-        const { data: photosData, error: photosError } = await supabase
-          .from('photos')
-          .select('*')
-          .eq('event_id', eventData.id)
-          .order('id', { ascending: false });
-
-        if (photosError) throw photosError;
-        setPhotos(photosData || []);
-
-      } catch (error) {
-        console.error('Erro geral:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadData();
+    setSelectedPhoto(null);
   }, [slug]);
 
-  // --- CÁLCULOS DE PREÇO ---
-  function calculateTotal() {
-    const singlePrice = event?.pricing?.single || event?.price?.single || 15.0;
-    return { singlePrice };
-  }
-
-  function addToCart(photo: any) {
-    if (!cart.find((item) => item.id === photo.id)) {
-      setCart([...cart, photo]);
-      showToast('Foto adicionada!');
-    } else {
-      showToast('Já está no carrinho!');
-    }
-  }
-
-  function removeFromCart(photoId: number) {
-    setCart(cart.filter((item) => item.id !== photoId));
-  }
-
-  // --- FUNÇÕES DE NAVEGAÇÃO (NEXT/PREV) ---
   function handleNextPhoto() {
     if (!selectedPhoto || photos.length <= 1) return;
-    const currentIndex = photos.findIndex(p => p.id === selectedPhoto.id);
+
+    const currentIndex = photos.findIndex(
+      (photo) => photo.id === selectedPhoto.id
+    );
+
     const nextIndex = (currentIndex + 1) % photos.length;
     setSelectedPhoto(photos[nextIndex]);
   }
 
   function handlePrevPhoto() {
     if (!selectedPhoto || photos.length <= 1) return;
-    const currentIndex = photos.findIndex(p => p.id === selectedPhoto.id);
+
+    const currentIndex = photos.findIndex(
+      (photo) => photo.id === selectedPhoto.id
+    );
+
     const prevIndex = (currentIndex - 1 + photos.length) % photos.length;
     setSelectedPhoto(photos[prevIndex]);
   }
 
-
-  if (loading) return <div className="public-event-container loading-msg">Carregando...</div>;
-  if (!event) return <div className="public-event-container loading-msg">Evento não encontrado.</div>;
-
-  const { singlePrice } = calculateTotal();
-  const hasPackages = event.pricing?.packages?.length > 0;
-
-  const getCleanWhatsapp = () => {
-    // 1. Tenta pegar da organização. Se não tiver, tenta do evento (fallback)
-    const raw = event?.organizations?.whatsapp || "";
-
-    // 2. Remove parênteses, traços e espaços (deixa só números)
-    const clean = raw.replace(/\D/g, '');
-
-    // 3. Segurança: Se estiver vazio, retorna vazio
-    if (!clean) return "";
-
-    // 4. Se já começar com 55, usa ele. Se não, adiciona o 55 na frente.
-    return clean.startsWith('55') ? clean : `55${clean}`;
+  function handlePhotoKeyDown(
+    keyboardEvent: KeyboardEvent<HTMLDivElement>,
+    photo: PublicPhoto
+  ) {
+    if (keyboardEvent.key === 'Enter' || keyboardEvent.key === ' ') {
+      keyboardEvent.preventDefault();
+      setSelectedPhoto(photo);
+    }
   }
-  return (
-    <div className="public-event-container no-select" onContextMenu={(e) => e.preventDefault()}>
 
+  if (loading) {
+    return (
+      <div className="public-event-container loading-msg">
+        Carregando...
+      </div>
+    );
+  }
+
+  if (!event) {
+    return (
+      <div className="public-event-container loading-msg">
+        Evento não encontrado.
+      </div>
+    );
+  }
+
+  const safePricing = normalizePricing(event.pricing || event.price);
+  const singlePrice = safePricing.single;
+  const hasPackages = safePricing.packages.length > 0;
+
+  const visiblePhotosCount = photos.length;
+  const displayTotalPhotos = totalPhotos || visiblePhotosCount;
+
+  return (
+    <div
+      className="public-event-container no-select"
+      onContextMenu={(mouseEvent) => mouseEvent.preventDefault()}
+    >
       {toastMessage && (
         <div className="toast-notification">
           <CheckCircle size={24} weight="fill" />
@@ -170,20 +129,25 @@ export function PublicEvent() {
         </div>
       )}
 
-      {/* HEADER */}
       <header className="pe-header">
         <div className="brand-wrapper">
           <Brand
-            logoUrl={event.organizations?.logo_url}
-            name={event.organizations?.name}
+            logoUrl={event.organizations?.logo_url ?? undefined}
+            name={event.organizations?.name ?? undefined}
           />
         </div>
-        <button className="header-btn-cart" onClick={() => setIsCartOpen(true)}>
-          <ShoppingCart size={20} /> <span className="cart-text">Carrinho</span> ({cart.length})
+
+        <button
+          type="button"
+          className="header-btn-cart"
+          onClick={() => setIsCartOpen(true)}
+        >
+          <ShoppingCart size={20} />
+          <span className="cart-text">Carrinho</span>
+          <span>({cart.length})</span>
         </button>
       </header>
 
-      {/* COMPONENTE LIGHTBOX (FOTO GRANDE) */}
       {selectedPhoto && (
         <Lightbox
           photo={selectedPhoto}
@@ -194,66 +158,139 @@ export function PublicEvent() {
         />
       )}
 
-      {/* HERO (CAPA) */}
-      <div className="pe-hero" style={{ backgroundImage: event.image_url ? `linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.9)), url(${event.image_url})` : 'none' }}>
+      <section
+        className="pe-hero"
+        style={{
+          backgroundImage: event.image_url
+            ? `linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.9)), url(${event.image_url})`
+            : 'none'
+        }}
+      >
         <h1>{event.name}</h1>
-        <div className="pe-hero-meta">
-          <span><Calendar size={18} /> {new Date(event.date + 'T12:00:00').toLocaleDateString('pt-BR')}</span>
-          <span><MapPin size={18} /> {event.location}</span>
-        </div>
-        <p className="price-highlight">
-          Fotos disponíveis por <strong>R$ {Number(singlePrice).toFixed(2)}</strong> cada
-          {hasPackages && <span style={{ display: 'block', fontSize: '0.9rem', color: '#4CAF50', marginTop: 5, fontWeight: 'bold' }}>🔥 Adicione mais fotos para ativar os pacotes promocionais!</span>}
-        </p>
-      </div>
 
-      <div className="gallery-intro">
+        <div className="pe-hero-meta">
+          <span>
+            <Calendar size={18} />
+            {formatEventDate(event.date)}
+          </span>
+
+          <span>
+            <MapPin size={18} />
+            {event.location || 'Local não informado'}
+          </span>
+        </div>
+
+        <p className="price-highlight">
+          Fotos disponíveis por{' '}
+          <strong>R$ {formatMoneyBR(singlePrice)}</strong> cada
+
+          {hasPackages && (
+            <span className="package-highlight">
+              🔥 Adicione mais fotos para ativar os pacotes promocionais!
+            </span>
+          )}
+        </p>
+      </section>
+
+      <section className="gallery-intro">
         <Link to="/galeria" className="back-link">
-          <ArrowLeft size={20} /> Voltar para lista de eventos
+          <ArrowLeft size={20} />
+          Voltar para lista de eventos
         </Link>
 
         <div className="gallery-intro-text">
           <h2>Escolha suas fotos</h2>
-          <p>{photos.length} fotos disponíveis neste evento</p>
+
+          <p>
+            {displayTotalPhotos} foto
+            {displayTotalPhotos !== 1 ? 's' : ''} disponíveis neste evento
+          </p>
+
+          {visiblePhotosCount > 0 && (
+            <span className="photos-loaded-counter">
+              Mostrando {visiblePhotosCount} de {displayTotalPhotos}
+            </span>
+          )}
         </div>
-      </div>
+      </section>
 
-      {/* GRID DE FOTOS */}
-      <div className="pe-grid">
-        {photos.map((photo) => {
-          const isAdded = cart.find((i) => i.id === photo.id);
-          return (
-            <div
-              key={photo.id}
-              className={`photo-card-wrapper ${isAdded ? 'selected' : ''}`}
-            >
-              <img
-                src={photo.image_url}
-                alt="Foto"
-                className="photo-card-img"
-                loading="lazy"
-                onClick={() => setSelectedPhoto(photo)}
-                style={{ cursor: 'pointer' }}
-                onContextMenu={(e) => e.preventDefault()}
-              />
-              <span className="photo-name-tag">{photo.original_name || `ID ${photo.id}`}</span>
+      {loadingPhotos ? (
+        <p className="photos-loading-inline">Carregando fotos...</p>
+      ) : photos.length === 0 ? (
+        <div className="empty-photos">
+          Nenhuma foto disponível neste evento ainda.
+        </div>
+      ) : (
+        <>
+          <section className="pe-grid">
+            {photos.map((photo) => {
+              const isAdded = cart.some((item) => item.id === photo.id);
 
-              <div onClick={() => setSelectedPhoto(photo)} style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', pointerEvents: 'none', opacity: 0.5 }}>
-                <MagnifyingGlassPlus size={32} color="white" />
-              </div>
+              return (
+                <div
+                  key={photo.id}
+                  className={`photo-card-wrapper ${isAdded ? 'selected' : ''}`}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setSelectedPhoto(photo)}
+                  onKeyDown={(keyboardEvent) =>
+                    handlePhotoKeyDown(keyboardEvent, photo)
+                  }
+                >
+                  <img
+                    src={photo.image_url}
+                    alt={photo.original_name || 'Foto do evento'}
+                    className="photo-card-img"
+                    loading="lazy"
+                    decoding="async"
+                    onContextMenu={(mouseEvent) => mouseEvent.preventDefault()}
+                  />
 
+                  <span className="photo-name-tag">
+                    {photo.original_name || `ID ${photo.id}`}
+                  </span>
+
+                  <div className="photo-zoom-icon">
+                    <MagnifyingGlassPlus size={32} color="white" />
+                  </div>
+
+                  <button
+                    type="button"
+                    className={`btn-add-cart ${isAdded ? 'added' : 'default'}`}
+                    onClick={(mouseEvent) => {
+                      mouseEvent.stopPropagation();
+                      addToCart(photo);
+                    }}
+                    title={isAdded ? 'Foto já adicionada' : 'Adicionar ao carrinho'}
+                  >
+                    <ShoppingCart size={18} weight="bold" />
+                  </button>
+                </div>
+              );
+            })}
+          </section>
+
+          <div className="load-more-area">
+            {hasMorePhotos ? (
               <button
-                className={`btn-add-cart ${isAdded ? 'added' : 'default'}`}
-                onClick={(e) => { e.stopPropagation(); addToCart(photo); }}
+                type="button"
+                className="btn-load-more"
+                onClick={handleLoadMorePhotos}
+                disabled={loadingMore}
               >
-                <ShoppingCart size={18} weight="bold" />
+                {loadingMore ? 'Carregando...' : 'Carregar mais fotos'}
               </button>
-            </div>
-          );
-        })}
-      </div>
+            ) : (
+              visiblePhotosCount > PHOTOS_PAGE_SIZE && (
+                <p className="photos-end-text">
+                  Todas as fotos foram carregadas.
+                </p>
+              )
+            )}
+          </div>
+        </>
+      )}
 
-      {/* COMPONENTE CARRINHO */}
       <CartStore
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
@@ -262,12 +299,11 @@ export function PublicEvent() {
         eventData={{
           id: event.id,
           name: event.name,
-          whatsapp: getCleanWhatsapp(),
-          pricing: event.pricing,
-          companyName: event.organizations?.name || "Empresa não informada"
+          whatsapp: normalizeWhatsapp(event.organizations?.whatsapp),
+          pricing: safePricing,
+          companyName: event.organizations?.name || 'Empresa não informada'
         }}
       />
-
     </div>
   );
 }

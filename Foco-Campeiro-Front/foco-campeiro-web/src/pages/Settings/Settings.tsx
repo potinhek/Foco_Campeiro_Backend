@@ -168,7 +168,7 @@ export function Settings() {
                     <div className="form-group full-width">
                         <label>Link Personalizado (Slug)</label>
                         <div className="slug-input-wrapper">
-                            <span>fococampeiro.com.br/galeria/</span>
+                            <span>vasionfotografias.com.br/galeria/</span>
                             <input 
                                 type="text" 
                                 value={slug} 

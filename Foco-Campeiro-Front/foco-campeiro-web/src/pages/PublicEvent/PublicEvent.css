@@ -1,11 +1,12 @@
 /* src/pages/PublicEvent/PublicEvent.css */
 
-/* --- CONFIGURAÇÕES GERAIS --- */
-* {
+/* ==========================================
+   BASE
+========================================== */
+
+.public-event-container,
+.public-event-container * {
     box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    touch-action: pan-y;
 }
 
 html,
@@ -20,41 +21,51 @@ body {
 .public-event-container {
     width: 100%;
     max-width: 100%;
+    min-height: 100vh;
     overflow-x: hidden;
     position: relative;
-    padding-bottom: 40px;
+    padding-bottom: 44px;
+    background: #050505;
+    color: #fff;
 }
 
 .loading-msg {
     color: white;
-    padding: 40px;
+    padding: 40px 20px;
     text-align: center;
     font-size: 1.2rem;
 }
 
-/* --- HEADER PRINCIPAL --- */
+/* ==========================================
+   HEADER
+========================================== */
+
 .pe-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     height: 72px;
     padding: 0 36px;
+
     background: #000;
     border-bottom: 1px solid #222;
+
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
     z-index: 9999;
+
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .brand-wrapper {
     display: flex;
     align-items: center;
     gap: 10px;
+    min-width: 0;
 }
 
-/* Controle da Logo */
 .brand-wrapper img,
 .brand-wrapper svg {
     height: 46px;
@@ -73,42 +84,60 @@ body {
     font-size: 1.1rem;
 }
 
-/* Botão de abrir o carrinho (fica no Header) */
 .header-btn-cart {
     background: #DAA520;
     border: none;
+    color: #000;
+
     padding: 8px 16px;
-    border-radius: 20px;
-    font-weight: bold;
+    border-radius: 999px;
+
+    font-weight: 900;
     cursor: pointer;
-    display: flex;
+
+    display: inline-flex;
     align-items: center;
-    gap: 5px;
-    transition: transform 0.2s;
+    justify-content: center;
+    gap: 6px;
+
+    transition:
+        transform 0.2s ease,
+        filter 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 .header-btn-cart:hover {
-    transform: scale(1.05);
-    background: #FFD700;
+    transform: translateY(-1px);
+    filter: brightness(1.08);
+    box-shadow: 0 10px 24px rgba(218, 165, 32, 0.2);
 }
 
-/* --- HERO (CAPA DO EVENTO) --- */
+/* ==========================================
+   HERO
+========================================== */
+
 .pe-hero {
     margin-top: 72px;
+    margin-bottom: 18px;
+
     background-size: cover;
     background-position: center;
     background-color: #111;
-    padding: 28px 20px;
+
+    padding: 32px 20px;
+
     text-align: center;
     color: white;
-    margin-bottom: 18px;
+
     border-bottom: 1px solid #222;
 }
 
 .pe-hero h1 {
+    margin: 0 0 12px;
+
     font-size: clamp(1.8rem, 3vw, 2.5rem);
     line-height: 1.1;
-    margin-bottom: 12px;
+
     text-shadow: 0 3px 12px rgba(0, 0, 0, 0.9);
 }
 
@@ -117,10 +146,13 @@ body {
     align-items: center;
     justify-content: center;
     gap: 14px;
+
     color: #ddd;
     background: rgba(0, 0, 0, 0.55);
+
     padding: 8px 16px;
     border-radius: 999px;
+
     border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -131,9 +163,11 @@ body {
 }
 
 .price-highlight {
-    margin-top: 16px;
+    margin: 16px 0 0;
+
     color: #ddd;
     font-size: 1rem;
+
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
 }
 
@@ -142,40 +176,98 @@ body {
     font-size: 1.12rem;
 }
 
-/* --- GRID DE FOTOS --- */
-.back-nav {
-    padding: 0 40px 20px 40px;
+.package-highlight {
+    display: block;
+
+    margin-top: 5px;
+
+    color: #4CAF50;
+    font-size: 0.9rem;
+    font-weight: 900;
+}
+
+/* ==========================================
+   INTRO
+========================================== */
+
+.gallery-intro {
+    padding: 0 36px 16px;
 }
 
 .back-link {
     color: #aaa;
     text-decoration: none;
-    display: flex;
+
+    display: inline-flex;
     align-items: center;
-    gap: 5px;
-    transition: color 0.2s;
+    gap: 6px;
+
+    transition: color 0.2s ease;
 }
 
 .back-link:hover {
     color: #DAA520;
 }
 
+.gallery-intro-text {
+    margin-top: 18px;
+}
+
+.gallery-intro-text h2 {
+    margin: 0 0 4px;
+
+    color: white;
+    font-size: 1.5rem;
+}
+
+.gallery-intro-text p {
+    margin: 0;
+
+    color: #888;
+    font-size: 0.95rem;
+}
+
+.photos-loaded-counter {
+    display: inline-block;
+
+    margin-top: 7px;
+
+    color: #DAA520;
+    font-size: 0.86rem;
+    font-weight: 800;
+}
+
+/* ==========================================
+   GRID DE FOTOS
+========================================== */
+
 .pe-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 16px;
+
     padding: 0 40px;
 }
 
 .photo-card-wrapper {
     position: relative;
-    aspect-ratio: 1/1;
+
+    aspect-ratio: 1 / 1;
     overflow: hidden;
-    border-radius: 12px;
-    border: 1px solid #2a2a2a;
+
     background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+
     cursor: pointer;
-    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    outline: none;
+
+    touch-action: manipulation;
+
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 .photo-card-wrapper:hover {
@@ -184,11 +276,28 @@ body {
     box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
 }
 
+.photo-card-wrapper:focus-visible {
+    border-color: #DAA520;
+    box-shadow: 0 0 0 3px rgba(218, 165, 32, 0.22);
+}
+
+.photo-card-wrapper.selected {
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.35);
+}
+
 .photo-card-img {
     width: 100%;
     height: 100%;
+
     object-fit: cover;
-    transition: transform 0.3s;
+
+    -webkit-user-drag: none;
+    user-select: none;
+
+    transition:
+        transform 0.3s ease,
+        filter 0.3s ease;
 }
 
 .photo-card-wrapper:hover .photo-card-img {
@@ -198,31 +307,74 @@ body {
 
 .photo-name-tag {
     position: absolute;
-    bottom: 5px;
-    left: 5px;
-    background: rgba(0, 0, 0, 0.6);
+    bottom: 6px;
+    left: 6px;
+
+    max-width: calc(100% - 58px);
+
+    background: rgba(0, 0, 0, 0.68);
     color: white;
+
     font-size: 10px;
-    padding: 2px 5px;
-    border-radius: 4px;
+    line-height: 1.2;
+
+    padding: 3px 6px;
+    border-radius: 5px;
+
     pointer-events: none;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-/* Botão de adicionar (+) na foto */
+.photo-zoom-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+
+    pointer-events: none;
+    opacity: 0.48;
+
+    transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
+}
+
+.photo-card-wrapper:hover .photo-zoom-icon {
+    opacity: 0.86;
+    transform: translate(-50%, -50%) scale(1.08);
+}
+
+/* ==========================================
+   BOTÃO CARRINHO NA FOTO
+========================================== */
+
 .btn-add-cart {
     position: absolute;
-    bottom: 10px;
     right: 10px;
-    border: none;
-    border-radius: 50%;
+    bottom: 10px;
+
     width: 38px;
     height: 38px;
+
+    border: none;
+    border-radius: 50%;
+
     cursor: pointer;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45);
-    transition: transform 0.2s ease, filter 0.2s ease;
+
+    transition:
+        transform 0.2s ease,
+        filter 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 .btn-add-cart:hover {
@@ -244,51 +396,147 @@ body {
     color: black;
 }
 
+/* ==========================================
+   CARREGAMENTO / EMPTY / CARREGAR MAIS
+========================================== */
 
-/* --- UTILITÁRIOS --- */
-.no-select {
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
+.photos-loading-inline {
+    color: #aaa;
+    text-align: center;
+
+    padding: 34px 20px;
+
+    font-weight: 700;
 }
 
-img {
-    -webkit-user-drag: none;
-    pointer-events: auto;
+.empty-photos {
+    margin: 20px 40px 0;
+    padding: 38px 20px;
+
+    border: 1px dashed #333;
+    border-radius: 14px;
+
+    background: rgba(255, 255, 255, 0.025);
+    color: #888;
+
+    text-align: center;
+    font-weight: 700;
 }
+
+.load-more-area {
+    padding: 32px 40px 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-load-more {
+    min-width: 240px;
+    min-height: 48px;
+
+    background: #DAA520;
+    border: 1px solid #DAA520;
+    color: #000;
+
+    padding: 13px 26px;
+    border-radius: 999px;
+
+    font-weight: 900;
+    font-size: 0.96rem;
+
+    cursor: pointer;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    box-shadow: 0 10px 24px rgba(218, 165, 32, 0.18);
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        filter 0.2s ease;
+}
+
+.btn-load-more:hover:not(:disabled) {
+    filter: brightness(1.08);
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px rgba(218, 165, 32, 0.25);
+}
+
+.btn-load-more:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.btn-load-more:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.photos-end-text {
+    margin: 0;
+
+    color: #666;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+/* ==========================================
+   TOAST
+========================================== */
 
 .toast-notification {
     position: fixed;
     top: 20px;
     left: 50%;
+    z-index: 11000;
+
     transform: translateX(-50%);
+
     background-color: #25D366;
     color: white;
+
     padding: 12px 24px;
     border-radius: 50px;
+
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+
     display: flex;
     align-items: center;
     gap: 10px;
-    z-index: 11000;
+
     font-weight: bold;
+
     animation: slideDownFade 0.3s ease-out;
 }
 
-/* --- MODAL DE CHECKOUT (FORMULÁRIO DE DADOS) --- */
+/* ==========================================
+   MODAL DE CHECKOUT
+   Mantido caso algum componente use estas classes
+========================================== */
+
 .modal-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
+    inset: 0;
+
     width: 100%;
     height: 100%;
+
     background: rgba(0, 0, 0, 0.85);
     z-index: 3000;
+
     display: flex;
     justify-content: center;
     align-items: center;
+
     padding: 20px;
+
     backdrop-filter: blur(5px);
     animation: fadeIn 0.2s;
 }
@@ -297,10 +545,13 @@ img {
     background: #1a1a1a;
     width: 100%;
     max-width: 450px;
+
     border-radius: 12px;
     padding: 25px;
+
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
     border: 1px solid #333;
+
     color: white;
 }
 
@@ -308,15 +559,18 @@ img {
     display: flex;
     justify-content: space-between;
     align-items: center;
+
     margin-bottom: 20px;
-    border-bottom: 1px solid #333;
     padding-bottom: 10px;
+
+    border-bottom: 1px solid #333;
 }
 
 .checkout-header h2 {
+    margin: 0;
+
     font-size: 1.4rem;
     color: #DAA520;
-    margin: 0;
 }
 
 .close-modal-btn {
@@ -331,9 +585,10 @@ img {
 }
 
 .checkout-info {
+    margin-bottom: 20px;
+
     font-size: 0.95rem;
     color: #ccc;
-    margin-bottom: 20px;
 }
 
 .form-group {
@@ -344,21 +599,28 @@ img {
     display: flex;
     align-items: center;
     gap: 8px;
+
+    margin-bottom: 8px;
+
     color: #DAA520;
     font-weight: bold;
     font-size: 0.9rem;
-    margin-bottom: 8px;
 }
 
 .form-group input {
     width: 100%;
+
     padding: 12px;
+
     background: #252525;
     border: 1px solid #444;
     border-radius: 8px;
+
     color: white;
     font-size: 1rem;
+
     outline: none;
+
     transition: border 0.2s;
 }
 
@@ -368,13 +630,17 @@ img {
 
 .checkout-total-box {
     background: #252525;
+
     padding: 15px;
+    margin: 20px 0;
+
     border-radius: 8px;
     border: 1px dashed #444;
+
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 20px 0;
+
     font-size: 1.1rem;
 }
 
@@ -385,18 +651,25 @@ img {
 
 .btn-send-whatsapp {
     width: 100%;
+
     padding: 15px;
+
     background: #25D366;
     color: white;
+
     border: none;
     border-radius: 8px;
+
     font-weight: bold;
     font-size: 1.1rem;
+
     cursor: pointer;
+
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
+
     transition: background 0.2s;
 }
 
@@ -404,12 +677,25 @@ img {
     background: #128C7E;
 }
 
-.photo-card-wrapper.selected {
-    border-color: #4CAF50;
-    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.35);
+/* ==========================================
+   UTILITÁRIOS
+========================================== */
+
+.no-select {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
-/* --- ANIMAÇÕES --- */
+.public-event-container img {
+    -webkit-user-drag: none;
+}
+
+/* ==========================================
+   ANIMAÇÕES
+========================================== */
+
 @keyframes slideDownFade {
     from {
         opacity: 0;
@@ -449,56 +735,25 @@ img {
     }
 }
 
-.gallery-intro {
-    padding: 0 36px 16px 36px;
-}
+/* ==========================================
+   RESPONSIVO
+========================================== */
 
-.gallery-intro-text {
-    margin-top: 18px;
-}
-
-.gallery-intro-text h2 {
-    color: white;
-    font-size: 1.5rem;
-    margin-bottom: 4px;
-}
-
-.gallery-intro-text p {
-    color: #888;
-    font-size: 0.95rem;
-}
-
-/* --- RESPONSIVIDADE --- */
 @media (max-width: 768px) {
     .public-event-container {
         padding-top: 58px;
+        padding-bottom: 32px;
     }
 
     .pe-header {
-        position: fixed !important;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 9999;
-
-        width: 100%;
         height: 58px;
         padding: 0 12px;
         gap: 10px;
-
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-
-        background: #000;
-        border-bottom: 1px solid #222;
     }
 
     .brand-wrapper {
         max-width: 65%;
         overflow: hidden;
-        display: flex;
-        align-items: center;
     }
 
     .brand-wrapper img,
@@ -530,8 +785,8 @@ img {
 
     .pe-hero {
         margin-top: 0;
-        padding: 24px 14px;
         margin-bottom: 16px;
+        padding: 24px 14px;
     }
 
     .pe-hero h1 {
@@ -543,8 +798,10 @@ img {
     .pe-hero-meta {
         flex-direction: column;
         gap: 6px;
+
         border-radius: 14px;
         padding: 8px 12px;
+
         font-size: 0.9rem;
     }
 
@@ -557,8 +814,12 @@ img {
         font-size: 1rem;
     }
 
+    .package-highlight {
+        font-size: 0.84rem;
+    }
+
     .gallery-intro {
-        padding: 12px 10px 10px 10px;
+        padding: 12px 10px 10px;
     }
 
     .gallery-intro-text {
@@ -573,8 +834,8 @@ img {
         font-size: 0.9rem;
     }
 
-    .back-nav {
-        padding: 12px 10px 10px 10px;
+    .photos-loaded-counter {
+        font-size: 0.82rem;
     }
 
     .back-link {
@@ -591,16 +852,35 @@ img {
         display: none;
     }
 
+    .photo-zoom-icon svg {
+        width: 26px;
+        height: 26px;
+    }
+
     .btn-add-cart {
         width: 32px;
         height: 32px;
-        bottom: 5px;
         right: 5px;
+        bottom: 5px;
     }
 
     .btn-add-cart svg {
         width: 16px;
         height: 16px;
+    }
+
+    .empty-photos {
+        margin: 16px 10px 0;
+        padding: 28px 16px;
+    }
+
+    .load-more-area {
+        padding: 24px 10px 0;
+    }
+
+    .btn-load-more {
+        width: 100%;
+        min-width: 0;
     }
 
     .lightbox-overlay {
@@ -620,19 +900,38 @@ img {
     .lightbox-close {
         top: -46px;
         right: 0;
+
         width: 40px;
         height: 40px;
     }
 
     .lightbox-actions {
-        margin-top: 14px;
         width: 100%;
-        justify-content: space-between;
+        margin-top: 14px;
         padding: 0 4px;
+
+        justify-content: space-between;
     }
 
     .btn-add-large {
         padding: 11px 18px;
         font-size: 14px;
+    }
+}
+
+@media (max-width: 380px) {
+    .pe-grid {
+        gap: 7px;
+        padding: 0 8px;
+    }
+
+    .gallery-intro {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .load-more-area {
+        padding-left: 8px;
+        padding-right: 8px;
     }
 }

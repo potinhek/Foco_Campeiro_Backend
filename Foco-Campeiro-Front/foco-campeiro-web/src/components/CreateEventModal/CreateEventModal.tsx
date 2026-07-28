@@ -292,7 +292,7 @@ export function CreateEventModal({
 
                         <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
                             <span style={{ color: '#666', fontSize: '0.8rem' }}>
-                                fococampeiro.com/galeria/
+                                vasionfotografias.com.br/galeria/
                             </span>
 
                             <input

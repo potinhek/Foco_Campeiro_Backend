@@ -15,7 +15,7 @@ export function Logo({ height }: LogoProps) {
   return (
     <img 
       src={logoImg} 
-      alt="Foco Campeiro Logo" 
+      alt="Vasion Fotografias Logo"
       className="app-logo"
       style={inlineStyle} 
     />

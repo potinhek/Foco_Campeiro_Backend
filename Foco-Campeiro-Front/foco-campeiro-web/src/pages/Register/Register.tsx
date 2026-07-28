@@ -68,7 +68,7 @@ export function Register() {
       <div className="register-card">
         
         <div className="register-header">
-          <img src={logoImg} alt="Foco Campeiro" className="register-logo" />
+          <img src={logoImg} alt="Vasion Fotografias" className="register-logo" />
           <h2 className="register-title">Crie sua conta</h2>
         </div>
 
